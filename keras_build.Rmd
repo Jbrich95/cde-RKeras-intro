@@ -1,0 +1,208 @@
+---
+title: "Building a Keras model"
+author: "Jordan Richards"
+date: "6/13/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Building our first model
+
+```{r}
+require(keras)
+reticulate::use_virtualenv("myenv", required = T)
+```
+
+Let's create some toy data. We simulate 1000 replications of ten predictors on a $20 \times 5$ grid, i.e.,  $\mathbf{x}\in \mathbb{R}^{1000}\times \mathbb{R}^{20}\times \mathbb{R}^5 \times \mathbb{R}^{10}$; these are just independent Gaussian realistions. We then apply a non-linear function $m(\mathbf{x})$ to the last dimension of $\mathbf{x}$, i.e., across the ten predictors, and simulate $\mathbf{Y}\in\mathbb{R}^{1000}\times \mathbb{R}^{20}\times \mathbb{R}^5$ as Gaussian with standard deviation 2 and mean $m(\mathbf{x})$. 
+
+```{r}
+
+# Create predictors
+X<-rnorm(1e6)
+
+#Re-shape to a 4d array. First dimension corresponds to observations,
+#last to the different components of the predictor set
+dim(X) <- c(1000,20,5,10) #Ten predictors
+
+#Non-linear transformation
+m <- exp(-3+X[,,,2]+X[,,,3])+abs(X[,,,1]+X[,,,5]-X[,,,4])-
+  sin(X[,,,6]-X[,,,7])*(X[,,,8]+X[,,,9]-X[,,,10])
+
+#Simulate Gaussian data with mean equal to m
+Y <- apply(m,1:3,function(x) rnorm(1,mean=x,sd=2))
+par(mfrow=c(1,2))
+hist(m)
+hist(Y)
+```
+We want to build a neural network model that can estimate $m$; this is equivalent to doing least-squares/expectation regression, i.e., modelling $\mathbb{E}[Y|\mathbf{X}=\mathbf{x}]$. We know that there is no spatial/image or temporal/sequential structure to the predictor set $\mathbf{x}$ and so we will create a simple densely-connected MLP.
+
+The first ingredient for a Keras model is the input layer. We can specify this using:
+```{r}
+  input.lay <- layer_input(shape = dim(X)[2:(length(dim(X)))], name = 'input_layer')
+
+```
+Models in Keras act on a data type referred to as tensors. These can be thought of as Keras analogues to R arrays (or np.arrays in Python) (see https://www.kdnuggets.com/2018/05/wtf-tensor.html). A 1D (or rank-1) tensor is a vector, a 2D (rank-2) tensor is a matrix, a 3D (rank-3) tensor is a 3D array, etc. We will refer to the dimensions as the axes of the tensor, e.g., a 2D tensor with shape [2,5] has two axes of length 2 and 5. The main differences are i) you cannot apply standard R functions to a tensor (this will be important when we write custom loss functions); instead we must apply specific tensor operations from the Keras backend (`` `r
+help(k_backend)` ``) which are differentiable functions (required for back propagation) and 2) they are immutable, i.e., you cannot update the contents of a tensor or change its shape, without creating a new one.
+
+Note that I have specified the argument `` `r
+shape` ``
+in the input layer as the shape of the tensor $\mathbf{x}$ excluding the first axis, i.e., the axis that corresponds to observation indices.  Layers in Keras models are built for tensors of a specific shape. Although you can pass new input/ouput data to a pre-built Keras model, the shape of the corresponding tensor must be exactly the same bar the first axis. We specify the `` `r
+shape` `` 
+in the first layer so that Keras knows what to expect when we input our data; it needs to know how much memory to request, how many parameters to store, etc. Specifying `` `r
+shape` ``
+should only be necessary for the first layer as the next layer will act on the tensor `` `r
+input.lay` ``
+, the shape of which is determined already by `` `r
+shape` ``.
+
+Now let's add some hidden layers. We will build a network with three hidden layers of 8, 6 and 4 neurons each. The first layer can be added as so:
+```{r}
+  hidden.lay <- input.lay %>%
+    layer_dense(units=8,activation = 'relu', name = 'hidden_1')
+
+```
+
+We have added a dense layer and applied this to `` `r
+input.lay` ``. This layer has `` `r
+units=8` `` neurons, and applied at each neuron is the ReLu activation. Some other examples of activation functions that can be used are:
+
+* "linear" - $h({x})={x}$
+* "sigmoid" - $h({x})=1/(1+\exp(-{x}))$
+* "exponential" - $h({x})=\exp({x})$
+* "softmax", e.g., normalised probabilities - $h(\mathbf{x})=\exp(\mathbf{x})/\sum \exp(\mathbf{x})$ 
+* "softplus" - $h({x})=\log(\exp({x})+1)$
+* "softsign" - $h(x)={x}/(|{x}|+1)$
+* "tanh"
+* "elu" - Exponential Linear Unit $h(x)=x$ if $x<0$ and $\alpha (\exp(x)-1)$ if $x<0$ for $\alpha > 0.$
+
+Note that the type of layer applied is `` `r
+layer_dense` ``. We can easily replace this with a different type of layer. For example, we could instead have:
+```{r, eval=FALSE}
+  hidden.lay.cnn<-input.lay %>%
+    layer_conv_2d(filters=4,kernel_size=c(3,3),padding="same",strides=1,
+                  activation = 'relu', name = 'hidden_cnn_1')
+
+```
+This produces a 2D convolutional layer with 4 filters (nodes/neurons), a stride of 1 in both directions and a filter dimension of $3\times 3$. Each filter will pass over each of the images (indexed by `` `r
+X[i,,,j]` ``) and every time it moves in either direction, it will move one strid. The filter return a new tensor, where the last axis is of length four. The arguments `` `r
+padding ` `` and `` `r
+strides ` ``
+determine the shape of the rest of the tensor; if `` `r
+padding="same"` `` and `` `r
+strides=1` ``, then the input images will be padded and the second and third axes of the output tensor will be the same as those of the input tensor. If  `` `r
+padding="valid" ` `` or  `` `r
+strides!=1 ` ``, then the output tensor will have shorter second and third axes, dependent on `` `r
+kernel_size` ``, see https://www.baeldung.com/cs/convolutional-layer-size. Typically the desired shape of your output tensor will be dependent on the application. If you are performing image classification, then the outputted shape will generally get smaller and smaller as information is condensed; the input may be ten images of size $20 \times 5$, i.e., a tensor of shape [20,5,10], but we may require only a single output from the network, e.g., a single Boolean or categorical value for the entire input. For our purpose, we want an estimate of $\mathbb{E}[Y|\mathbf{X}=\mathbf{x}]$ at all indices in the $20 \times 5$ image; in which case, we should handle the output dimension accordingly.
+
+Note that 1D and 3D convolutional layers also exist, and different layer types can be used interchangeably. Similarly if we want a recurrent layer, we might use a long short-term memory layer (LSTM). We can add a dense LSTM layer using `` `r
+layer_lstm` `` or a convolutional LSTM layer using `` `r
+layer_conv_2d` ``. Convolution layers require substantially more parameters to operate than dense layers, and recurrent layers require computations that must be done sequentially, rather than in parallel; hence, it can be difficult to train either in a personal computer.  For simplicity, we will stick with dense layers only.
+
+Let's add the final two hidden layers. 
+```{r}
+  hidden.lay <- hidden.lay %>%
+    layer_dense(units=6,activation = 'relu', name = 'hidden_2') %>%
+      layer_dense(units=4,activation = 'relu', name = 'hidden_3') 
+
+
+```
+Note that the input here is `` `r
+hidden.lay` ``, not `` `r
+input.lay` ``. We now need to apply a final layer to i) ensure that the output tensor has the same shape as the data `` `r
+Y` `` and 2) make sure the output has values that are sensible for our loss function. For the first part, we will just apply another dense layer but with only a single neuron (as we only have one outputted value, i.e., the expectation at each index). For the second part, as the expectation can take any real value, we will just use the identity/"linear" link function so that our output can be any real value as well.
+
+```{r, eval=TRUE}
+  output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'linear', name = 'output') 
+```
+
+Then we can build our model and specify the inputs and outputs and look at the summary.
+
+```{r,eval=TRUE}
+  model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+  summary(model)
+```
+
+We now need to compile our model and assign it some loss function and an optimizer. We will use adam (https://machinelearningmastery.com/adam-optimization-algorithm-for-deep-learning/) which is popularly applied adaptive learning optimisation procedure.
+```{r}
+model %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+```
+The loss function we will be using is the MSE. For a full list of standard loss functions, see https://keras.io/api/losses/.  Custom loss functions (and optimisers) can be written, e.g., the negative log-likelihood for statistical distributions.
+
+Now let's train the model. We will train it for 500 epochs using a batch size of 50. 
+```{r, results ='hide'}
+  history <- model %>% fit(
+    x=X, y=Y,
+    epochs = 500, batch_size = 50
+  )
+plot(history)
+```
+And that's it. We now have a trained neural network that can provide predictions for $Y$ given a set of predictors $\mathbf{X}$. We can retrieve those predictions using
+```{r}
+  predictions<-model %>% predict( X )
+
+```
+and compare them to the known values
+```{r}
+par(mfrow=c(1,2))
+hist(m,breaks=100, main="Predictions (grey); true m (grey)")
+hist(predictions,add=T,col="red",breaks=100)
+plot(predictions,m)
+abline(a=0,b=1,col="red")
+```
+Seems to be doing well. Better predictions can be achieved by using a more complex architecture, i.e., a wider and deeper network, or a longer training scheme. 
+
+We can save our fitted model using:
+```{r}
+model %>% save_model_tf(file="prediction_network")
+
+```
+
+Let's compared our neural network to a linear model. For fair comparison, we will use the same optimisation scheme and build a linear regression model in keras;:
+```{r}
+ linear.lay <- input.lay %>%
+    layer_dense(units=1,activation = 'linear', name = 'linear_1')
+model.lin <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(linear.lay)
+  )
+  summary(model.lin)
+  model.lin %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+
+```
+with training
+```{r, results ='hide'}
+  history <- model.lin %>% fit(
+    x=X, y=Y,
+    epochs = 500, batch_size = 50
+  )
+plot(history)
+```
+Then
+```{r}
+  lin.preds<-model.lin %>% predict( X )
+
+par(mfrow=c(1,2))
+hist(m,breaks=100, main="Linear predictions (grey); true m (grey)")
+hist(lin.preds,add=T,col="red",breaks=100)
+plot(lin.preds,m)
+abline(a=0,b=1,col="red")
+```
+Clearly a massive difference! The linear model just isn't capable of capturing the highly non-linear structure in $\mathbf{X}$.
+##Validation and testing
+
+##Checkpointing and early-stopping
+
+##Writing a custom loss function

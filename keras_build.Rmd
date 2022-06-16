@@ -13,23 +13,26 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 require(keras)
+path<- paste0(reticulate::virtualenv_root(),"/myenv/bin/python")
+Sys.setenv(RETICULATE_PYTHON = path) #Set Python interpreter to that installed in myenv
+
 reticulate::use_virtualenv("myenv", required = T)
 ```
 
-Let's create some toy data. We simulate 1000 replications of ten predictors on a $20 \times 5$ grid, i.e.,  $\mathbf{x}\in \mathbb{R}^{1000}\times \mathbb{R}^{20}\times \mathbb{R}^5 \times \mathbb{R}^{10}$; these are just independent Gaussian realistions. We then apply a non-linear function $m(\mathbf{x})$ to the last dimension of $\mathbf{x}$, i.e., across the ten predictors, and simulate $\mathbf{Y}\in\mathbb{R}^{1000}\times \mathbb{R}^{20}\times \mathbb{R}^5$ as Gaussian with standard deviation 2 and mean $m(\mathbf{x})$. 
+Let's create some toy data. We simulate 2000 replications of eight predictors on a $7 \times 5$ grid, i.e.,  $\mathbf{x}\in \mathbb{R}^{2000}\times \mathbb{R}^{7}\times \mathbb{R}^5 \times \mathbb{R}^{8}$; these are just independent Gaussian realistions. We then apply a non-linear function $m(\mathbf{x})$ to the last dimension of $\mathbf{x}$, i.e., across the ten predictors, and simulate $\mathbf{Y}\in\mathbb{R}^{2000}\times \mathbb{R}^{7}\times \mathbb{R}^5$ as Gaussian with standard deviation 2 and mean $m(\mathbf{x})$. 
 
 ```{r}
 
 # Create predictors
-X<-rnorm(1e6)
+X<-rnorm(560000)
 
 #Re-shape to a 4d array. First dimension corresponds to observations,
 #last to the different components of the predictor set
-dim(X) <- c(1000,20,5,10) #Ten predictors
+dim(X) <- c(2000,7,5,8) #Eight predictors
 
 #Non-linear transformation
-m <- exp(-3+X[,,,2]+X[,,,3])+abs(X[,,,1]+X[,,,5]-X[,,,4])-
-  sin(X[,,,6]-X[,,,7])*(X[,,,8]+X[,,,9]-X[,,,10])
+m <- 2+exp(-4+X[,,,2]+X[,,,3]-X[,,,1])+cos(X[,,,1]+X[,,,5]-X[,,,4])-
+  sin(X[,,,6]-X[,,,7])*(X[,,,8])-sqrt(X[,,,2]^2+X[,,,5]^2+X[,,,7]^2+X[,,,1]^2)
 
 #Simulate Gaussian data with mean equal to m
 Y <- apply(m,1:3,function(x) rnorm(1,mean=x,sd=2))
@@ -37,6 +40,8 @@ par(mfrow=c(1,2))
 hist(m)
 hist(Y)
 ```
+> Here the predictors are all on the same marginal scale. Typically the same does not hold for real data; it's good practice to marginally normalise or standardise your predictors to increase the numerical stability of training.
+
 We want to build a neural network model that can estimate $m$; this is equivalent to doing least-squares/expectation regression, i.e., modelling $\mathbb{E}[Y|\mathbf{X}=\mathbf{x}]$. We know that there is no spatial/image or temporal/sequential structure to the predictor set $\mathbf{x}$ and so we will create a simple densely-connected MLP.
 
 The first ingredient for a Keras model is the input layer. We can specify this using:
@@ -58,16 +63,16 @@ input.lay` ``
 , the shape of which is determined already by `` `r
 shape` ``.
 
-Now let's add some hidden layers. We will build a network with three hidden layers of 8, 6 and 4 neurons each. The first layer can be added as so:
+Now let's add some hidden layers. We will build a network with three hidden layers of 16, 12 and 12 neurons each. The first layer can be added as so:
 ```{r}
   hidden.lay <- input.lay %>%
-    layer_dense(units=8,activation = 'relu', name = 'hidden_1')
+    layer_dense(units=16,activation = 'relu', name = 'hidden_1')
 
 ```
 
 We have added a dense layer and applied this to `` `r
 input.lay` ``. This layer has `` `r
-units=8` `` neurons, and applied at each neuron is the ReLu activation. Some other examples of activation functions that can be used are:
+units=16` `` neurons, and applied at each neuron is the ReLu activation. Some other examples of activation functions that can be used are:
 
 * "linear" - $h({x})={x}$
 * "sigmoid" - $h({x})=1/(1+\exp(-{x}))$
@@ -104,8 +109,8 @@ layer_conv_2d` ``. Convolution layers require substantially more parameters to o
 Let's add the final two hidden layers. 
 ```{r}
   hidden.lay <- hidden.lay %>%
-    layer_dense(units=6,activation = 'relu', name = 'hidden_2') %>%
-      layer_dense(units=4,activation = 'relu', name = 'hidden_3') 
+    layer_dense(units=12,activation = 'relu', name = 'hidden_2') %>%
+      layer_dense(units=12,activation = 'relu', name = 'hidden_3')  
 
 
 ```
@@ -133,20 +138,26 @@ We now need to compile our model and assign it some loss function and an optimiz
 ```{r}
 model %>% compile(
   optimizer="adam",
-  loss = "mean_squared_error"
+  loss = "mean_squared_error",
+  metrics="mean_absolute_error"
 )
 ```
-The loss function we will be using is the MSE. For a full list of standard loss functions, see https://keras.io/api/losses/.  Custom loss functions (and optimisers) can be written, e.g., the negative log-likelihood for statistical distributions.
+The loss function we will be using is the MSE. For a full list of standard loss functions, see https://keras.io/api/losses/.  Custom loss functions (and optimisers) can be written, e.g., the negative log-likelihood for statistical distributions (more on this later). We can also output other standard performance metrics; here we are returning the MAE as well. Note that the metrics are not used for training.
 
-Now let's train the model. We will train it for 500 epochs using a batch size of 50. 
+Now let's train the model. We will train it for 2000 epochs using a batch size of 500 
 ```{r, results ='hide'}
   history <- model %>% fit(
     x=X, y=Y,
-    epochs = 500, batch_size = 50
+    epochs = 2000, batch_size = 500
   )
 plot(history)
 ```
-And that's it. We now have a trained neural network that can provide predictions for $Y$ given a set of predictors $\mathbf{X}$. We can retrieve those predictions using
+And that's it. We now have a trained neural network that can provide predictions for $Y$ given a set of predictors $\mathbf{X}$. The final training loss is:
+```{r}
+model %>% evaluate(X,Y, batch_size=2000)
+```
+
+We can retrieve those predictions using
 ```{r}
   predictions<-model %>% predict( X )
 
@@ -154,11 +165,13 @@ And that's it. We now have a trained neural network that can provide predictions
 and compare them to the known values
 ```{r}
 par(mfrow=c(1,2))
-hist(m,breaks=100, main="Predictions (grey); true m (grey)")
-hist(predictions,add=T,col="red",breaks=100)
+hist(m,breaks=seq(min(m,predictions),max(m,predictions),length=50), main="Predictions (red); m (grey)",density=TRUE)
+hist(predictions,add=T,col="red",
+     breaks=seq(min(m,predictions),max(m,predictions),length=50))
 plot(predictions,m)
 abline(a=0,b=1,col="red")
 ```
+
 Seems to be doing well. Better predictions can be achieved by using a more complex architecture, i.e., a wider and deeper network, or a longer training scheme. 
 
 We can save our fitted model using:
@@ -167,7 +180,7 @@ model %>% save_model_tf(file="prediction_network")
 
 ```
 
-Let's compared our neural network to a linear model. For fair comparison, we will use the same optimisation scheme and build a linear regression model in keras;:
+Let's compare our neural network to a linear regression model. For fair comparison, we will use the same optimisation scheme and build a linear regression model in Keras:
 ```{r}
  linear.lay <- input.lay %>%
     layer_dense(units=1,activation = 'linear', name = 'linear_1')
@@ -186,23 +199,409 @@ with training
 ```{r, results ='hide'}
   history <- model.lin %>% fit(
     x=X, y=Y,
-    epochs = 500, batch_size = 50
+    epochs = 2000, batch_size = 500
   )
 plot(history)
 ```
 Then
 ```{r}
   lin.preds<-model.lin %>% predict( X )
+  model.lin %>% evaluate(X,Y, batch_size=2000)
+
 
 par(mfrow=c(1,2))
-hist(m,breaks=100, main="Linear predictions (grey); true m (grey)")
-hist(lin.preds,add=T,col="red",breaks=100)
+hist(m,breaks=seq(min(m,lin.preds),max(m,lin.preds),length=50), 
+     main="Predictions (red); m (grey)",density=TRUE)
+hist(lin.preds,add=T,col="red",
+     breaks=seq(min(m,lin.preds),max(m,lin.preds),length=50))
 plot(lin.preds,m)
 abline(a=0,b=1,col="red")
 ```
-Clearly a massive difference! The linear model just isn't capable of capturing the highly non-linear structure in $\mathbf{X}$.
-##Validation and testing
+Clearly a massive difference! The linear model just isn't capable of capturing the highly non-linear structure in $\mathbf{X}$ and the neural network provides a much lower training loss.
+
+## Avoiding overfitting
+There are a number of ways to mitigate the risk of overfitting. The most common approach is to use cross-validation techniques. Here we hold out some of the training samples and use these for model selection. Let's use an 80-20 split.
+```{r}
+Y_train <- Y[1:1600,,]; Y_valid <- Y[1601:2000,,]
+X_train <- X[1:1600,,,]; X_valid <- X[1601:2000,,,]
+```
+Now let's train the model with the training data, but keep track of the validation loss. To illustrate overfitting, we will use a much more complicated network; this has over 10000 parameters.
+```{r, results ='hide'}
+#Here I'm just resetting the model to it's pre-trained state
+hidden.lay <- input.lay %>%
+      layer_dense(units=128,activation = 'relu', name = 'hidden_1') %>%
+        layer_dense(units=64,activation = 'relu', name = 'hidden_2') %>%
+          layer_dense(units=16,activation = 'relu', name = 'hidden_3') %>%
+             layer_dense(units=16,activation = 'relu', name = 'hidden_4')
+
+output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'linear', name = 'output') 
+model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+model %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+
+  history <- model %>% fit(
+    x=X_train, y=Y_train,
+    epochs = 500, batch_size = 200,
+    validation_data = list(X_valid,Y_valid)
+  )
+plot(history)
+```
+
+We observe that the fully trained model is overfitting as the validation loss and training loss diverge; the validation loss is actually increasing with the epoch, which we definitely want to avoid!
+
+There are a number of strategies for dealing with overfitting:
+
+* Use more data (easier said than done!)
+* Use a less complicated architecture. If we had stuck with our original model, then we would not observe overfitting at all!
+* Weight regularisation - We can apply L1 or L2 penalties to the layer weights, see the argument "kernel_regularizer" in `` `r
+help(layer_dense)` ``
+* Dropout - Let's give this a go
+
+Dropout involves randomly "dropping out" a fraction of output features from a layer; this means we randomly set a proportion of the outputs to zero during training. Let's train the same model again, but with a 30% dropout rate applied to the first two layers.
+```{r, results ='hide'}
+hidden.lay <- input.lay %>%
+      layer_dense(units=128,activation = 'relu', name = 'hidden_1') %>%
+      layer_dropout(0.3) %>%
+        layer_dense(units=64,activation = 'relu', name = 'hidden_2') %>%
+        layer_dropout(0.3) %>%
+           layer_dense(units=16,activation = 'relu', name = 'hidden_3') %>%
+            layer_dense(units=16,activation = 'relu', name = 'hidden_4') 
+
+output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'linear', name = 'output') 
+model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+model %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+
+  history <- model %>% fit(
+    x=X_train, y=Y_train,
+    epochs = 500, batch_size = 200,
+    validation_data = list(X_valid,Y_valid)
+  )
+plot(history)
+```
+Training is taking a bit longer but we're definitely experiencing less overfitting.
 
 ##Checkpointing and early-stopping
+Even with the above techniques, overfitting is inevitable if training continues for long enough. By default, Keras does not save the model at every epoch during training, it only saves the final state. In this way, it is not guaranteed that the best fitting model (in terms of the validation loss) will be returned at the end of training (unless the optimal number of epochs is known a priori). To overcome this, we can use either model checkpoints or early stopping.
 
-##Writing a custom loss function
+Here we will use checkpoints to save the current state of the model at each epoch during training, but only if the validation loss has decreased (to save storage and computational time).
+
+```{r, results ='hide'}
+#Here I'm just resetting the model to it's pre-trained state
+hidden.lay <- input.lay %>%
+      layer_dense(units=12,activation = 'relu', name = 'hidden_1') %>%
+        layer_dense(units=8,activation = 'relu', name = 'hidden_2') %>%
+          layer_dense(units=8,activation = 'relu', name = 'hidden_3') 
+
+output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'linear', name = 'output') 
+
+model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+
+model %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+
+checkpoint <- callback_model_checkpoint(filepath = "model_weights", 
+                                        monitor = "val_loss", verbose = 0,
+                                        save_best_only = TRUE, 
+                                        save_weights_only = TRUE, 
+                                        mode = "min",
+                                        save_freq = "epoch") 
+#We will save only the weights of the model, not the entire model itself
+  history <- model %>% fit(
+    x=X_train, y=Y_train,
+    epochs = 500, batch_size = 200,
+    callback=checkpoint,
+    validation_data = list(X_valid,Y_valid)
+  )
+plot(history)
+
+#We can then overwrite the final training weights with the best weights from the checkpoint
+model <- load_model_weights_tf(model,filepath="model_weights")
+
+```
+Alternatively, we can use "early stopping". This technique monitors the validation loss and stops training if it stops decreasing.
+```{r, results ='hide'}
+#Here I'm just resetting the model to it's pre-trained state
+hidden.lay <- input.lay %>%
+      layer_dense(units=12,activation = 'relu', name = 'hidden_1') %>%
+        layer_dense(units=8,activation = 'relu', name = 'hidden_2') %>%
+          layer_dense(units=8,activation = 'relu', name = 'hidden_3') 
+
+output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'linear', name = 'output') 
+
+model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+
+model %>% compile(
+  optimizer="adam",
+  loss = "mean_squared_error"
+)
+
+stop <- callback_early_stopping( monitor = "val_loss", 
+                                 patience = 5,
+                                 verbose = 0,
+                                 mode = "min", 
+                                 restore_best_weights = TRUE)
+#The patience determines the number of epochs that the procedure is willing
+#to wait to see if the validation loss decreases.
+
+  history <- model %>% fit(
+    x=X_train, y=Y_train,
+    epochs = 2000, batch_size = 200,
+    callback=stop,
+    validation_data = list(X_valid,Y_valid)
+  )
+  
+plot(history)
+
+```
+
+## Writing a custom loss function
+Sometimes the loss function that we want to use in our model is not implemented in Keras. This is particularly the case if we want to do conditional density estimation; here the loss function would be the negative log-likelihood associated with the density. Here I will show you how to write a custom loss function. We will fit a gamma distribution to toy data. 
+```{r}
+rate <- abs(2+6*m/diff(range(m))); shape <- abs(5+5*m/diff(range(m)))
+theta <- array(dim=c(dim(shape),2))
+theta[,,,1]<- shape; theta[,,,2]<-rate
+Y <- apply(theta,c(1,2,3),function(x) rgamma(1,shape=x[1],rate=x[2]))
+par(mfrow=c(1,3))
+hist(shape)
+hist(rate)
+hist(Y)
+Y_train<- Y[1:1600,,]; Y_valid <- Y[1601:2000,,]
+```
+Let's first create a model with the shape parameter for the gamma distribution fixed to some known value, e.g., 5, which we won't estimate with our model.
+
+Custom loss functions in keras take in arguments `` `r
+y_true` `` and `` `r
+y_pred` ``; the former is our response data $Y$ and the latter is the output from our final layer in the network. The loss function must be written using the backend functions from tensorflow and Keras to ensure that it is differentiable and hence can be used in a backpropogation framework.
+
+```{r}
+gamma_nll_loss <- function( y_true, y_pred) {
+
+  K <- backend() #Here's the backend functions from Keras
+  
+  rate <- y_pred #The output from the final layer will be the shape parameter. 
+  #This will be a function of the data whilst we fix the shape parameter to two.
+  shape <- 5
+  
+  return(-K$sum(
+    shape*K$log(rate)-
+      tensorflow::tf$math$lgamma(shape)+ 
+      (shape-1)*K$log(y_true)-
+      rate*y_true
+  )) 
+}
+```
+Easy! Now let's fit a one-parameter gamma distribution to the data. It's important to remember that the rate parameter for the gamma distribution is strictly positive, so the activation function of the final layer of our network must reflect this.
+
+```{r, results ='hide'}
+hidden.lay <- input.lay %>%
+      layer_dense(units=12,activation = 'relu', name = 'hidden_1') %>%
+        layer_dense(units=8,activation = 'relu', name = 'hidden_2') %>%
+          layer_dense(units=8,activation = 'relu', name = 'hidden_3') 
+
+
+output.lay <- hidden.lay %>%
+      layer_dense(units=1,activation = 'exponential', name = 'output')  
+#Here we are using an exponential activation function to 
+#map the input to strictly positive values
+
+model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+
+model %>% compile(
+  optimizer="adam",
+  loss = gamma_nll_loss #And here we specify our loss function
+)
+
+history <- model %>% fit(
+    x=X_train, y=Y_train,
+    epochs = 2500, batch_size = 500,
+    validation_data = list(X_valid,Y_valid)
+  )
+```
+with loss
+```{r}
+print("Training loss"); print(model %>% evaluate(X_train,Y_train,batch_size=2000))
+print("Validation loss"); print(model %>% evaluate(X_valid,Y_valid,batch_size=2000))
+```
+Then we can retrieve the predicted rate parameters:
+```{r}
+pred.rate <- predict(model, X)
+hist(rate, main="Predicted (red); true (grey)",
+     breaks=seq(min(pred.rate,rate),max(pred.rate,rate),length=50))
+hist(pred.rate,add=T,col="red",
+     breaks=seq(min(pred.rate,rate),max(pred.rate,rate),length=50))
+
+```
+
+and check the fit. We'll do this by using the predicted shape parameters to transform the data onto standard exponential margins.
+```{r}
+Y.exp <- qexp(pgamma(Y,rate=pred.rate,shape = 5))
+p.seq <- seq(0, 1-1/length(Y.exp), length=1000)
+plot(quantile(Y.exp,p.seq),qexp(p.seq),
+     ylab="Theoretical quantiles", xlab="Empirical quantiles")
+abline(a=0,b=1,col="red")
+```
+
+Looks very good already! Let's see if we can improve the fit in the tails by simultaneously estimating the shape parameter; we will do this in the following section.
+
+## Multi-input/output networks
+
+Thus far we have only considered a network with a single input and output. We know that the gamma distribution has two parameters, and so if we want to estimate both simultaneously we will need to create a network with two outputs. We will also give the network two inputs; this could be useful if you want to use model the parameters using different predictors or the loss function requires some extra, non-estimated inputs, e.g., the exceedance thresholds for a GPD model.
+
+For illustrative purposes, we will just duplicate the predictors and input these twice. 
+```{r}
+X1 <- X2 <-X
+X1_train <- X2_train <- X_train
+X1_valid <- X2_valid <- X_valid
+```
+We now need two input layers
+```{r}
+  input.lay1 <- layer_input(shape = dim(X1)[2:(length(dim(X1)))], name = 'input_layer1')
+  input.lay2 <- layer_input(shape = dim(X2)[2:(length(dim(X2)))], name = 'input_layer2')
+```
+We then create two seperate networks using the different inputs. One will be used for modelling the shape parameter and the other is used for modelling the rate parameter.
+```{r, results ='hide'}
+#Here's the shape network
+shape.hidden.lay <- input.lay1 %>%
+      layer_dense(units=12,activation = 'relu', name = 'shape_hidden_1') %>%
+        layer_dense(units=8,activation = 'relu', name = 'shape_hidden_2') %>%
+          layer_dense(units=8,activation = 'relu', name = 'shape_hidden_3') 
+
+shape.output.lay <- shape.hidden.lay %>%
+      layer_dense(units=1,activation = 'exponential', name = 'shape_output')
+
+
+#And here's the rate network
+rate.hidden.lay <- input.lay2 %>%
+      layer_dense(units=12,activation = 'relu', name = 'rate_hidden_1') %>%
+        layer_dense(units=8,activation = 'relu', name = 'rate_hidden_2') %>%
+          layer_dense(units=8,activation = 'relu', name = 'rate_hidden_3')   
+
+
+rate.output.lay <- rate.hidden.lay %>%
+      layer_dense(units=1,activation = 'exponential', name = 'rate_output') 
+#In both cases we use an exponential activation to ensure that 
+#the parameters are strictly positive
+```
+Recall that the loss functions take in only a single input `` `r
+y_pred` ``. Hence we must combined the two networks together now so that they create a single tensor as input to our custom loss function.
+```{r}
+output.joined.lay <- layer_concatenate(c(shape.output.lay,rate.output.lay))
+
+```
+The final axes of the tensor `` `r
+output.joined.lay` `` will have length two, with the first index being the predicted shape parameter and the second being the rate parameter. We can adapt our custom loss function accordingly.
+```{r}
+gamma_nll_loss <- function( y_true, y_pred) {
+
+  K <- backend() 
+  
+  shape <- y_pred[tensorflow::all_dims(),1] 
+  rate <- y_pred[tensorflow::all_dims(),2]
+  #The all_dims() function just ensures that its the last axis that is indexed.
+  #This can be very useful if the shape of the tensor isn't known.
+  
+  return(-K$sum(
+    shape*K$log(rate)-
+     tensorflow::tf$math$lgamma(shape)+ 
+      (shape-1)*K$log(y_true)-
+      rate*y_true
+  )) 
+}
+```
+
+And now we can compile and train our model. Remember that we have two inputs now.
+```{r}
+model <- keras_model(
+    inputs = c(input.lay1,input.lay2), 
+    outputs = c(output.joined.lay)
+  )
+model %>% compile(
+  optimizer="adam",
+  loss = gamma_nll_loss #And here we specify our loss function
+)
+
+  history <- model %>% fit(
+    list(X1_train,X2_train), Y_train,
+    epochs = 2000, batch_size = 500,
+    validation_data = list(list(X1_valid,X2_valid),Y_valid)
+  )
+plot(history)
+
+```
+
+Then we can get the predicted parameters:
+```{r}
+preds <- model %>% predict( list(X1,X2))
+pred.shape<-preds[,,,1]
+pred.rate<-preds[,,,2]
+par(mfrow=c(2,2))
+hist(shape, main="Predicted (red); true (grey)",
+     breaks=seq(min(pred.shape,shape),max(pred.shape,shape),length=50))
+hist(pred.shape,add=T,col="red", 
+     breaks=seq(min(pred.shape,shape),max(pred.shape,shape),length=50))
+hist(rate, main="Predicted (red); true (grey)",
+     breaks=seq(min(pred.rate,rate),max(pred.rate,rate),length=50))
+hist(pred.rate,add=T,col="red", 
+     breaks=seq(min(pred.rate,rate),max(pred.rate,rate),length=50))
+plot(pred.shape,shape)
+plot(pred.rate,rate)
+```
+
+and check the fit.
+```{r}
+Y.exp <- qexp(pgamma(Y,shape=pred.shape,rate = pred.rate))
+p.seq <- seq(0, 1-1/length(Y.exp), length=1000)
+plot(quantile(Y.exp,p.seq),qexp(p.seq), ylab="Theoretical quantiles", 
+     xlab="Empirical quantiles")
+abline(a=0,b=1,col="red")
+print("Training loss"); model %>% evaluate(list(X1_train,X2_train),
+                                           Y_train,batch_size=2000)
+print("Validation loss"); model %>% evaluate(list(X1_valid,X2_valid),
+                                             Y_valid,batch_size=2000)
+```
+
+Are we doing much better? Maybe, but not dramatically so. Even though we know that the underlying distribution that generates the response is highly non-stationary in both parameters, it seems that fixing the shape to 5 and modelling only the rate parameter already gives a satisfactory fit. Why could this be?
+
+* Maybe we need more data to train the two-parameter model? This uses two neural networks, and so requires estimation of twice as many parameters
+* If a neural network has lots of parameters, there's no guarantee that the log-likelihood/loss function is convex. We could have gotten stuck in a local minima during training (something to look out for!). 
+* Maybe we can keep the shape parameter constant over space, but estimate this jointly with the non-stationary rate parameter (rather than fixing it at 5). Here's a quick tip to on how to achieve this; we can rewrite the hidden layers for the shape parameter in the following way:
+```{r, results ='hide', eval =FALSE}
+#Here's the shape network
+shape.hidden.lay <- input.lay1 %>%
+      layer_dense(units=1,activation = 'linear', name = 'shape_hidden_1',
+                  trainable=F,
+                  weights=list(matrix(0,nrow=dim(X1)[2:(length(dim(X1)))],ncol=1),
+                               array(1,dim=1))) 
+
+shape.output.lay <- shape.hidden.lay %>%
+      layer_dense(units=1,activation = 'exponential', name = 'shape_output', use_bias = F)
+```
+The `` `r
+trainable=F` `` argument means that the weights and biases of the first layer are fixed; they do not update during training. I've then supplied initial weights and biases through the `` `r
+weight` ` argument; we have a matrix of all zero weights and a bias of one. That means that the first layer will output a single constant value, one, regardless of the input. The second layer does not have any biases; only a single trainable weight. This will be multiplied by the one from the output of the first layer and, as the weight takes any real value, we can get shape parameter (with range controlled by the second activation function) fixed over all inputs.

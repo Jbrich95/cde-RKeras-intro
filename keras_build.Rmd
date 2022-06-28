@@ -469,6 +469,20 @@ abline(a=0,b=1,col="red")
 
 Looks very good already! Let's see if we can improve the fit in the tails by simultaneously estimating the shape parameter; we will do this in the following section.
 
+A quick note on saving/loading the model. We save the model in the usual way:
+We can save our fitted model using:
+```{r}
+model %>% save_model_tf(file="cde_gamma_network")
+
+```
+But then to load the model, we need to supply all of the custom parts of the model, e.g., the loss, any activation functions, training regimes.
+```{r}
+model <-load_model_tf(file="cde_gamma_network",custom_objects = list("gamma_nll_loss"=gamma_nll_loss))
+
+```
+
+
+
 ## Multi-input/output networks
 
 Thus far we have only considered a network with a single input and output. We know that the gamma distribution has two parameters, and so if we want to estimate both simultaneously we will need to create a network with two outputs. We will also give the network two inputs; this could be useful if you want to use model the parameters using different predictors or the loss function requires some extra, non-estimated inputs, e.g., the exceedance thresholds for a GPD model.

@@ -1,4 +1,4 @@
-coords=expand.grid(seq(0,1,length=12),seq(0,1,length=14))
+coords=expand.grid(seq(0,1,length=16),seq(0,1,length=18))
 
 library(fields)
 library(mvnfast)
@@ -7,12 +7,12 @@ library(mvnfast)
   
   Z=rmvn(n=11000,mu=rep(0,nrow(Cor_mat)),sigma=Cor_mat)
   
-  X<-array(dim=c(11000,12,14,10))
+  X<-array(dim=c(11000,16,18,10))
   for(i in 1:10){
     Cor_mat=Exponential(rdist(coords),range=runif(1,0.5,1.5))
     
     Z=rmvn(n=11000,mu=rep(0,nrow(Cor_mat)),sigma=Cor_mat)
-    dim(Z)=c(11000,12,14)
+    dim(Z)=c(11000,16,18)
     
     X[,,,i]=Z
   }
@@ -21,8 +21,8 @@ image(X[1,,,1])
 m=Z
 
 for(i in 1:11000){
-  for(j in 2:11){
-    for(k in 2:13){
+  for(j in 2:15){
+    for(k in 2:17){
       m[i,j,k] <- mean(2+exp(-4+X[i,(j-1):(j+1),(k-1):(k+1),2]+X[i,(j-1):(j+1),(k-1):(k+1),3]-X[i,(j-1):(j+1),(k-1):(k+1),3])+cos(X[i,(j-1):(j+1),(k-1):(k+1),1]+X[i,(j-1):(j+1),(k-1):(k+1),5]-X[i,(j-1):(j+1),(k-1):(k+1),4])-
         sin(X[i,(j-1):(j+1),(k-1):(k+1),6]-X[i,(j-1):(j+1),(k-1):(k+1),1])*(X[i,(j-1):(j+1),(k-1):(k+1),8])-sqrt(X[i,(j-1):(j+1),(k-1):(k+1),2]^2+X[i,(j-1):(j+1),(k-1):(k+1),5]^2+X[i,(j-1):(j+1),(k-1):(k+1),7]^2+X[i,(j-1):(j+1),(k-1):(k+1),1]^2)+
         exp(-4+X[i,(j-1):(j+1),(k-1):(k+1),10]+X[i,(j-1):(j+1),(k-1):(k+1),3]-X[i,(j-1):(j+1),(k-1):(k+1),7])+cos(X[i,(j-1):(j+1),(k-1):(k+1),9]+X[i,(j-1):(j+1),(k-1):(k+1),1]-X[i,(j-1):(j+1),(k-1):(k+1),8])-
@@ -32,8 +32,8 @@ for(i in 1:11000){
   }
 }
 
-m<-m[,-c(1,12),-c(1,14)]
-X<-X[,-c(1,12),-c(1,14),]
+m<-m[,-c(1,16),-c(1,18)]
+X<-X[,-c(1,16),-c(1,18),]
 #Simulate Gaussian data with mean equal to m
 Y <- apply(exp(m)/(1+exp(m)),1:3,function(x) rbinom(1,1,x))
 par(mfrow=c(1,2))

@@ -1,0 +1,12 @@
+\beamer@sectionintoc {1}{Background}{3}{0}{1}
+\beamer@sectionintoc {2}{Installing the R interface to Keras}{7}{0}{2}
+\beamer@sectionintoc {3}{Deep learning}{8}{0}{3}
+\beamer@subsectionintoc {3}{1}{Basics of neural networks}{10}{0}{3}
+\beamer@subsectionintoc {3}{2}{Architecture/types}{12}{0}{3}
+\beamer@subsectionintoc {3}{3}{Training}{24}{0}{3}
+\beamer@subsectionintoc {3}{4}{Avoiding overfitting}{31}{0}{3}
+\beamer@sectionintoc {4}{Building a Keras model}{33}{0}{4}
+\beamer@sectionintoc {5}{Practicals}{33}{0}{5}
+\beamer@subsectionintoc {5}{1}{Logistic regression}{35}{0}{5}
+\beamer@subsectionintoc {5}{2}{Single quantile regression}{36}{0}{5}
+\beamer@subsectionintoc {5}{3}{GPD regression}{37}{0}{5}

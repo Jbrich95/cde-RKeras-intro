@@ -413,7 +413,9 @@ Due to their \textcolor{red}{large number of parameters}, neural networks are \t
 \section{Building a Keras model}
 \begin{frame}
 \begin{center}
-\Huge Building a Keras model 
+\Huge Building a Keras model\\ 
+\small Please download the R markdown file from \url{https://github.com/Jbrich95/cde-RKeras-intro/tree/main/keras_build}\\
+\tiny and follow my GitHub while you're at it
 \end{center}
 \end{frame}
 \section{Practicals}
@@ -473,7 +475,7 @@ where $\hat{p}_i(v_j)$ denotes the predicted probability $\Pr\{Y_i < v_j\}$. The
 \end{frame}
 \begin{frame}{GPD regression}
 \begin{itemize}
-\item As the GPD model provides a characterisation of the distribution of $Y_i$ above the exceedance threshold $u_i$ only, the TWCRPS function in $\texttt{qres\_twcrps.R}$ will use the empirical distribution for probabilities $\Pr\{Y_i \leq u_i\}$.
+\item As the GPD model provides a characterisation of the distribution of $Y_i$ above the exceedance threshold $u_i$ only, the TWCRPS function in $\texttt{qres\_twcrps.R}$ will use the empirical distribution (of all data) for probabilities $\Pr\{Y_i \leq u_i\}$. This function can also be downloaded from my GitHub.
 \item I have also assumed that $u_i$ is perfectly estimated as the $90\%$ quantile of $Y_i$. If this is not the case, we could improve our predictions by modelling $\Pr\{Y_i \leq u_i\}$ using logistic regression (with deep learning!), but that's beyond the scope of this exercise. 
 \end{itemize}
 \end{frame}

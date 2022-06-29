@@ -13,13 +13,14 @@ valid_thresh=c(0.1,0.25,0.5,1,2,3,4,5,7.5,10,15,20,25,30,35,40,50,75,100)
 weights=1-(1+(valid_thresh+1)^2)^{-1/6}
 weights=weights/weights[length(weights)]
 
-load("qregress_test_df.Rdata")
+load("Data/qregress_test_df.Rdata")
 obs<-c(Y_test)
 pred_xi<-c(predictions[,,2])
 pred_scale<-c(predictions[,,1])
 pred_u<-c(pred_u_test)
 q<-0.9
 
+require("EnvStats")
 lower_scale=pemp(pred_u,obs=obs)
 probs=array(dim=c(length(obs),length(valid_thresh)))
 library(evd)

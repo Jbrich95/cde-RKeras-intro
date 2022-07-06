@@ -156,7 +156,7 @@ Then we can build our model and specify the inputs and outputs and look at the s
 We now need to compile our model and assign it some loss function and an optimizer. We will use adam (https://machinelearningmastery.com/adam-optimization-algorithm-for-deep-learning/) which is a popularly applied adaptive learning optimisation scheme.
 ```{r}
 model %>% compile(
-  optimizer="adam",
+  optimizer=optimizer_adam(learning_rate=0.0005),
   loss = "mean_squared_error",
   metrics="mean_absolute_error"
 )
@@ -480,17 +480,20 @@ model %>% compile(
   loss = gamma_nll_loss #And here we specify our loss function
 )
 #We will use early stopping to avoid overfitting.
-stop <- callback_early_stopping( monitor = "val_loss", 
-                                 patience = 50,
-                                 verbose = 0,
-                                 mode = "min", 
-                                 restore_best_weights = TRUE)
+checkpoint <- callback_model_checkpoint(filepath = "model_weights", 
+                                        monitor = "val_loss", verbose = 0,
+                                        save_best_only = TRUE, 
+                                        save_weights_only = TRUE, 
+                                        mode = "min",
+                                        save_freq = "epoch") 
 history <- model %>% fit(
     x=X_train, y=Y_train,
-    epochs = 2500, batch_size = 1000,
-    callback=stop,
+    epochs = 2000, batch_size = 2000,
+    callback=checkpoint,
     validation_data = list(X_valid,Y_valid)
   )
+model <- load_model_weights_tf(model,filepath="model_weights")
+
 ```
 
 The training and validation losses are:
@@ -508,11 +511,12 @@ hist(pred.rate,add=T,col="red",
 
 ```
 
-Not looking too bad! Let's check the fit. We'll do this by using the predicted rate parameters to transform the data onto standard exponential margins and comparing the theoretical and empirical quantiles.
+Not looking too bad! Let's check the fit. We'll do this by using the predicted rate parameters to transform the validation data onto standard normal margins and comparing the theoretical and empirical quantiles.
 ```{r}
-Y.exp <- qexp(pgamma(Y,rate=pred.rate,shape = 5))
-p.seq <- seq(0, 1-1/length(Y.exp), length=3000)
-plot(quantile(Y.exp,p.seq),qexp(p.seq),
+pred.rate.valid <- predict(model, X_valid)
+Y.norm <- qnorm(pgamma(Y_train,rate=pred.rate.valid,shape = 5))
+p.seq <- seq(0, 1-1/length(Y.norm), length=3000)
+plot(quantile(Y.norm,p.seq),qnorm(p.seq),
      ylab="Theoretical quantiles", xlab="Empirical quantiles")
 abline(a=0,b=1,col="red")
 ```
@@ -614,18 +618,21 @@ model %>% compile(
   optimizer="adam",
   loss = gamma_nll_loss #And here we specify our loss function
 )
-stop <- callback_early_stopping( monitor = "val_loss", 
-                                 patience = 50,
-                                 verbose = 0,
-                                 mode = "min", 
-                                 restore_best_weights = TRUE)
+checkpoint <- callback_model_checkpoint(filepath = "model_weights", 
+                                        monitor = "val_loss", verbose = 0,
+                                        save_best_only = TRUE, 
+                                        save_weights_only = TRUE, 
+                                        mode = "min",
+                                        save_freq = "epoch") 
   history <- model %>% fit(
     list(X1_train,X2_train), Y_train,
-    epochs = 3000, batch_size = 1000,
-    callback=stop,
+    epochs = 2000, batch_size = 2000,
+    callback=checkpoint,
     validation_data = list(list(X1_valid,X2_valid),Y_valid)
   )
 plot(history)
+model <- load_model_weights_tf(model,filepath="model_weights")
+
 
 ```
 
@@ -653,9 +660,12 @@ abline(a=0,b=1,col="red")
 
 and check the fit.
 ```{r}
-Y.exp <- qexp(pgamma(Y,shape=pred.shape,rate = pred.rate))
-p.seq <- seq(0, 1-1/length(Y.exp), length=3000)
-plot(quantile(Y.exp,p.seq),qexp(p.seq), ylab="Theoretical quantiles", 
+preds.valid <- model %>% predict( list(X1_valid,X2_valid))
+pred.shape.valid<-preds[,,,1]
+pred.rate.valid<-preds[,,,2]
+Y.norm <- qnorm(pgamma(Y_valid,shape=pred.shape.valid,rate = pred.rate.valid))
+p.seq <- seq(0, 1-1/length(Y.norm), length=3000)
+plot(quantile(Y.norm,p.seq),qnorm(p.seq), ylab="Theoretical quantiles", 
      xlab="Empirical quantiles")
 abline(a=0,b=1,col="red")
 print("Training loss"); model %>% evaluate(list(X1_train,X2_train),
@@ -722,18 +732,20 @@ model %>% compile(
   optimizer="adam",
   loss = gamma_nll_loss #And here we specify our loss function
 )
-stop <- callback_early_stopping( monitor = "val_loss", 
-                                 patience = 50,
-                                 verbose = 0,
-                                 mode = "min", 
-                                 restore_best_weights = TRUE)
+checkpoint <- callback_model_checkpoint(filepath = "model_weights", 
+                                        monitor = "val_loss", verbose = 0,
+                                        save_best_only = TRUE, 
+                                        save_weights_only = TRUE, 
+                                        mode = "min",
+                                        save_freq = "epoch") 
   history <- model %>% fit(
     list(X1_train,X2_train), Y_train,
-    epochs = 4000, batch_size = 1000,
-    callback=stop,
+    epochs = 2000, batch_size = 2000,
+    callback=checkpoint,
     validation_data = list(list(X1_valid,X2_valid),Y_valid)
   )
 plot(history)
+model <- load_model_weights_tf(model,filepath="model_weights")
 
 preds <- model %>% predict( list(X1,X2))
 pred.shape<-preds[,,,1]
@@ -752,9 +764,12 @@ hist(pred.rate,add=T,col="red",
 
 and check the fit.
 ```{r}
-Y.exp <- qexp(pgamma(Y,shape=pred.shape,rate = pred.rate))
-p.seq <- seq(0, 1-1/length(Y.exp), length=3000)
-plot(quantile(Y.exp,p.seq),qexp(p.seq), ylab="Theoretical quantiles", 
+preds.valid <- model %>% predict( list(X1_valid,X2_valid))
+pred.shape.valid<-preds[,,,1]
+pred.rate.valid<-preds[,,,2]
+Y.norm <- qnorm(pgamma(Y_valid,shape=pred.shape.valid,rate = pred.rate.valid))
+p.seq <- seq(0, 1-1/length(Y.norm), length=3000)
+plot(quantile(Y.norm,p.seq),qnorm(p.seq), ylab="Theoretical quantiles", 
      xlab="Empirical quantiles")
 abline(a=0,b=1,col="red")
 print("Training loss"); model %>% evaluate(list(X1_train,X2_train),

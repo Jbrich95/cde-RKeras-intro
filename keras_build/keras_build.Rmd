@@ -2,9 +2,7 @@
 title: "Building a Keras model in R"
 author: "Jordan Richards"
 date: "29/6/2022"
-output:
-  html_document:
-    df_print: paged
+output:html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -488,7 +486,7 @@ checkpoint <- callback_model_checkpoint(filepath = "model_weights",
                                         save_freq = "epoch") 
 history <- model %>% fit(
     x=X_train, y=Y_train,
-    epochs = 2000, batch_size = 2000,
+    epochs = 2500, batch_size = 2000,
     callback=checkpoint,
     validation_data = list(X_valid,Y_valid)
   )
@@ -560,7 +558,7 @@ We then create two separate networks using the different inputs. One will be use
 Here's the shape network:
 ```{r, results ='hide'}
 shape.hidden.lay <- input.lay1 %>%
-      layer_dense(units=12,activation = 'relu', name = 'shape_hidden_1') %>%
+      layer_dense(units=8,activation = 'relu', name = 'shape_hidden_1') %>%
         layer_dense(units=8,activation = 'relu', name = 'shape_hidden_2') %>%
           layer_dense(units=8,activation = 'relu', name = 'shape_hidden_3') 
 
@@ -626,7 +624,7 @@ checkpoint <- callback_model_checkpoint(filepath = "model_weights",
                                         save_freq = "epoch") 
   history <- model %>% fit(
     list(X1_train,X2_train), Y_train,
-    epochs = 2000, batch_size = 2000,
+    epochs = 2500, batch_size = 2000,
     callback=checkpoint,
     validation_data = list(list(X1_valid,X2_valid),Y_valid)
   )
@@ -740,7 +738,7 @@ checkpoint <- callback_model_checkpoint(filepath = "model_weights",
                                         save_freq = "epoch") 
   history <- model %>% fit(
     list(X1_train,X2_train), Y_train,
-    epochs = 2000, batch_size = 2000,
+    epochs = 2500, batch_size = 2000,
     callback=checkpoint,
     validation_data = list(list(X1_valid,X2_valid),Y_valid)
   )
@@ -750,9 +748,11 @@ model <- load_model_weights_tf(model,filepath="model_weights")
 preds <- model %>% predict( list(X1,X2))
 pred.shape<-preds[,,,1]
 pred.rate<-preds[,,,2]
+print("Estimated shape:");   print(mean(pred.shape))
 par(mfrow=c(2,2))
 hist(shape, main="Predicted (red); true (grey)",
      breaks=seq(min(pred.shape,shape),max(pred.shape,shape),length=50))
+
 hist(pred.shape,add=T,col="red", 
      breaks=seq(min(pred.shape,shape),max(pred.shape,shape),length=50))
 hist(rate, main="Predicted (red); true (grey)",
@@ -779,4 +779,3 @@ print("Validation loss"); model %>% evaluate(list(X1_valid,X2_valid),
 ```
 
 Which model should we pick? We should expect the more complicated model to give the best predictions, but due to the practicalities of training a deep learning model this might not always be the case! Sometimes it's better to opt for parsimonity over complexity.
-

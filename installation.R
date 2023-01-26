@@ -1,9 +1,9 @@
 require(keras)
 require(tensorflow)
 
-version <- "3.8.4"
-#Download and install python 3.8.4 from https://www.python.org/downloads/macos/
-#Create a virtual envionment 'myenv' with Python 3.8.4. Install tensorflow  within this environment.
+version <- "3.8.10"
+#Download and install python 3.8.10 from https://www.python.org/downloads/macos/
+#Create a virtual envionment 'myenv' with Python 3.8.10. Install tensorflow  within this environment.
 reticulate::virtualenv_create(envname = 'myenv',
                               python="/usr/local/bin/python3",
                               version=version)

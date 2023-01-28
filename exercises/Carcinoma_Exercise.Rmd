@@ -1,0 +1,350 @@
+---
+title: "Carcinoma identification exercise"
+author: "Jordan Richards"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+  
+# Dataset
+  
+* Exercise developed by Chris Wikle and Dan Pagendam (2019).
+* Dataset taken from Janowczyk, A. and Madabhushi, A. (2016). Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases. Journal of Pathology Informatics 7:29.
+* https://www.ncbi.nlm.nih.gov/pubmed/27563488
+* The full dataset can be downloaded from http://gleason.case.edu/webdata/jpi-dl-tutorial/IDC_regular_ps50_idx5.zip
+
+# Dataset 
+* The original dataset consisted of 162 whole mount slide images of BreastCancer (BCa) specimens scanned at 40x resolution
+* Of those slides, 277,524 patches of size 50 x 50 pixels were extracted (198,738
+IDC negative and 78,786 IDC positive).
+* Our goal is to train a CNN to identify if carcinoma is present within a patch
+* Due to computational constraints, we will use only a small subset of the data - 1001 training images and 500 validation images that were randomly sampled from the larger set.
+
+# Required packages
+
+We will be using some functions and the images from Dan's github directory, https://github.com/dpagendam/deepLearningRshort
+
+```{r,eval=T}
+remotes::install_github("dpagendam/deepLearningRshort")
+
+library(pbapply)
+library(keras)
+library(raster)
+library(deepLearningRshort)
+library(EBImage)
+```
+
+
+# Load dataset
+
+```{r, eval=TRUE}
+width <- 50
+height <- 50
+greyScale <- FALSE
+packageDataDir = system.file("extdata", 
+                 package="deepLearningRshort")
+trainData <- extract_feature(
+  paste0(packageDataDir, "/carcinoma/train/"),
+   width, height, greyScale, TRUE)
+testData <- extract_feature(
+  paste0(packageDataDir, "/carcinoma/test/"), 
+    width, height, greyScale, TRUE)
+```
+
+* All images are 50 x 50 pixals, so no need to resize them
+* Images can be greyscale if desired 
+
+# Formatting for Keras
+
+* All data needs to be in a tensor where the first dimension corresponds to the observations/samples.
+* Each channel represents an intensity on an RGB scale
+
+```{r, eval=TRUE}
+if(greyScale) numInputChannels <- 1 else  numInputChannels <- 3
+train_array <- t(trainData$X)
+dim(train_array) <- c(width, height, numInputChannels, 
+                      nrow(trainData$X))
+train_array <- aperm(train_array, c(4,1,2,3))
+  
+test_array <- t(testData$X)
+dim(test_array) <- c(width, height, numInputChannels, 
+                     nrow(testData$X))
+test_array <- aperm(test_array, c(4,1,2,3))
+```
+
+# Plot
+Top: positive. Bottom: negative.
+
+```{r,eval=T,echo=F}
+truth <- testData$y
+
+par(mfrow = c(2, 4), mar = rep(0, 4))
+inds<-c(sample(which(truth==1),4),sample(which(truth==0),4))
+for(i in 1:8){
+   if(greyScale){
+    image(t(apply(test_array[random[i],,,], 2, rev)),
+          col = gray.colors(12), axes = F)
+   }else{
+    img<-train_array[inds[i],,,]
+    img <- brick(img)
+    crs(img) <- "+proj=tmerc"
+  
+    plotRGB(img,scale = 1)
+}
+}
+
+```
+
+# Building a CNN Model
+
+We use a fairly typical architecture for a CNN with convolutional, batch normalisation,
+and max-pooling layers repeated in series.
+
+```{r, eval=TRUE}
+library(keras)
+input.lay <- layer_input(shape = dim(train_array)[-1], 
+      name = 'input_layer')
+
+model <- input.lay %>% layer_conv_2d(
+  kernel_size = c(5,5), 
+          filters = 8,
+          strides = 1, activation = "relu", 
+          padding = "same",
+          data_format="channels_last") %>%
+layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same") 
+
+```
+
+# Building a CNN model 
+
+```{r, eval = T}
+model <- model %>% layer_conv_2d(
+  kernel_size = c(5,5), 
+    filters = 8,
+     strides = 1, activation = "relu", 
+      padding = "same", 
+          data_format="channels_last") %>%
+layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same")  %>%
+layer_conv_2d(kernel_size = c(5,5), 
+              filters = 8,
+          strides = 1, activation = "relu", 
+          padding = "same", 
+          data_format="channels_last") %>%
+  layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same") 
+```
+
+# Building a CNN Model
+
+* After the convolutional layers, the tensors are flattened into a vector
+* These features are then put through a dense FFNN with a single node for binary classification.
+
+```{r, eval=TRUE}
+
+model <- model %>%layer_flatten() %>%
+layer_dense(units = 8, activation = "relu") %>% 
+layer_dense(units = 8, activation = "relu") %>%
+layer_dense(units = 8, activation = "relu") 
+output.lay <- model %>% layer_dense(units = 1, 
+                      activation = "sigmoid")
+
+  model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+
+```
+
+# Compile
+
+* Compile model with standard loss - binary cross entropy or Bernoulli nll
+* We will mix things up and use ADAM this time, rather than rmsprop
+* We will also ask Keras to print an extra evaluation metric, i.e., accuracy 
+
+```{r, eval=TRUE}
+model %>% compile(
+  loss = 'binary_crossentropy',
+  optimizer = optimizer_adam(learning_rate = 0.0001),
+  metrics = c('accuracy')
+)
+
+```
+
+# Summary 
+
+```{r, eval = F}
+summary(model)
+```
+
+# Model training
+
+Let's train the model
+```{r, eval = T}
+history <- model %>% fit(
+  x = train_array, y = as.numeric(trainData$y),
+  epochs = 50, batch_size = 32, validation_data =
+    list(test_array,as.numeric(testData$y))
+)
+```
+
+# History
+
+```{r,eval = T,echo=F}
+plot(history)
+```
+
+# Overfitting 
+
+* We can see that the model begins to overfit quite quickly. 
+* Ideally we want to extract the model with the lowest validation loss, but by default Keras just saves the state of the model at the last epoch
+* We can change that with a callback called checkpoints
+
+```{r,eval = T}
+checkpoint <- callback_model_checkpoint(
+  filepath = "model_weights", 
+  monitor = "val_loss", 
+  verbose = 0,
+  save_best_only = TRUE, 
+  save_weights_only = TRUE, 
+  mode = "min",save_freq = "epoch") 
+```
+
+# Overfitting 
+
+We now retrain the model with the checkpoint and we can extract the best predictive model at the end of training
+
+* Note that the model weights are saved to the R objects denoting the layers. We need to recreate the model to train from scratch
+
+```{r, eval = T, echo=F}
+model <- input.lay %>% layer_conv_2d(
+  kernel_size = c(5,5), 
+          filters = 8,
+          strides = 1, activation = "relu", 
+          padding = "same",
+          data_format="channels_last") %>%
+layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same") 
+
+model <- model %>% layer_conv_2d(
+  kernel_size = c(5,5), 
+    filters = 8,
+     strides = 1, activation = "relu", 
+      padding = "same", 
+          data_format="channels_last") %>%
+layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same")  %>%
+layer_conv_2d(kernel_size = c(5,5), 
+              filters = 8,
+          strides = 1, activation = "relu", 
+          padding = "same", 
+          data_format="channels_last") %>%
+  layer_batch_normalization() %>%
+layer_max_pooling_2d(pool_size = c(2,2), 
+                     padding = "same") 
+
+model <- model %>%layer_flatten() %>%
+layer_dense(units = 8, activation = "relu") %>% 
+layer_dense(units = 8, activation = "relu") %>%
+layer_dense(units = 8, activation = "relu") 
+output.lay <- model %>% layer_dense(units = 1, 
+                      activation = "sigmoid")
+
+  model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+  model %>% compile(
+  loss = 'binary_crossentropy',
+  optimizer = optimizer_adam(learning_rate = 0.0001),
+  metrics = c('accuracy')
+)
+```
+
+# Checkpoints
+
+* We will also use the learning rate reduction callback from the previous exercise
+
+```{r, eval = T}
+history <- model %>% fit(
+  x = train_array, y = as.numeric(trainData$y),
+  callback = list(checkpoint,
+      callback_reduce_lr_on_plateau(
+        monitor = "val_loss",
+      factor = 0.25, patience = 5)),
+  epochs = 50, batch_size = 32, validation_data =
+    list(test_array,as.numeric(testData$y))
+)
+```
+
+# Checkpoints
+
+```{r, eval = T}
+#Then load the saved weights
+model <- load_model_weights_tf(model,
+                               filepath="model_weights")
+```
+
+Now the final fitted model minimises the validation loss.
+
+* Early-stopping is an alternative. You can set training to stop if the (validation) loss has not decreased. This is less computationally expensive than checkpointing, but may not be optimal for particularly volatile loss functions, e.g., complex likelihoods.
+
+# Checking performance
+
+* We can obtain the outputs of the model (sigmoid activation) 
+```{r,eval= T}
+probabilities <- predict(model, test_array)
+```
+* We can then obtain the predicted classes for the test/validation dataset
+```{r,eval= T}
+predictions <- as.numeric(probabilities %>%
+`>`(0.5) %>% k_cast("int32"))
+```
+* and check the accuracy of the predictions
+```{r, eval = T}
+truth <- testData$y
+propCorrect <- sum(predictions == truth)/length(truth)
+print(propCorrect)
+```
+
+# Checking performance
+
+```{r,echo = F}
+random <- sample(1:nrow(testData$X), 16)
+plot_preds <- predictions[random]
+plot_probs <- as.vector(round(probabilities[random,], 2))
+plot_truth <- truth[random]
+
+par(mfrow = c(4, 4), mar = rep(0, 4))
+for(i in 1:length(random)){
+  if(greyScale){
+     image(t(apply(test_array[random[i],,,], 2, rev)),
+          col = gray.colors(12), axes = F)
+    
+  }else{
+    img<-train_array[random[i],,,]
+    img <- brick(img)
+    crs(img) <- "+proj=tmerc"
+  
+    plotRGB(img,scale = 1)
+    
+  }
+    legend("top", legend = paste0("Pred: ", ifelse(plot_preds[i] == 0, "IDC Neg.", "IDC Pos.")),
+         text.col = ifelse(plot_preds[i] == 0, 4, 2), bty = "n", text.font = 2)
+  legend("center", legend = plot_probs[i], bty = "n", cex = 2, text.col = "black")
+  legend("bottom", legend = paste0("Truth: ", ifelse(plot_truth[i] == 0, "IDC Neg.", "IDC Pos.")), text.col = ifelse(plot_truth[i] == 0, 4, 2), bty = "n", text.font = 2)
+}
+
+```
+
+# Extensions
+
+  * Does converting the images to grayscale have any impact on predictive performance?
+  * How do your results change if you reduce the number of filters in the convolutional layers or the number of units in the dense layers? Does the model overfit more dramatically (i.e. the history plot) when the model has more parameters? 
+
+

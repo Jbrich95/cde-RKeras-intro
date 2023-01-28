@@ -1,22 +1,7 @@
-if(Sys.info()['sysname'] == "Linux")
-{
-  #Install Linux dependencies for those using Google Colab
-  system('sudo apt-get install -y libtiff5-dev', intern=TRUE)
-  system('sudo apt-get install -y libfftw3-dev', intern=TRUE)
-}
-install.packages(c("pbapply", "keras", "raster"), 
-                 repos = "http://cran.us.r-project.org", 
-                 quiet = TRUE)
-                 
-                 
-                 
-                 
+       
                  
 remotes::install_github("dpagendam/deepLearningRshort")
-install.packages("BiocManager", 
-                 repos = "http://cran.us.r-project.org", 
-                 quiet = TRUE)
-BiocManager::install("EBImage")
+
 library(pbapply)
 library(keras)
 library(raster)
@@ -28,12 +13,12 @@ library(EBImage)
 
 width <- 50
 height <- 50
-grayScale <- FALSE
+greyScale <- FALSE
 packageDataDir = system.file("extdata", package="deepLearningRshort")
 trainData <- extract_feature(paste0(packageDataDir, "/carcinoma/train/"),
-                             width, height, grayScale, TRUE)
+                             width, height, greyScale, TRUE)
 testData <- extract_feature(paste0(packageDataDir, "/carcinoma/test/"), 
-                            width, height, grayScale, TRUE)
+                            width, height, greyScale, TRUE)
                             
                             
 
@@ -50,6 +35,20 @@ dim(test_array) <- c(width, height, numInputChannels,
                      nrow(testData$X))
 test_array <- aperm(test_array, c(4,1,2,3))
 
+truth <- testData$y
+
+sample(1:nrow(testData$X), 16)
+par(mfrow = c(2, 4), mar = rep(0, 4))
+inds<-c(sample(which(truth==1),4),sample(which(truth==0),4))
+for(i in 1:8){
+   
+    img<-train_array[inds[i],,,]
+    img <- brick(img)
+    crs(img) <- "+proj=tmerc"
+  
+    plotRGB(img,scale = 1)
+
+}
 
 
 
@@ -183,12 +182,12 @@ plot_truth <- truth[random]
 
 par(mfrow = c(4, 4), mar = rep(0, 4))
 for(i in 1:length(random)){
-  if(grayScale)
+  if(greyScale)
   {
     image(t(apply(test_array[random[i],,,], 2, rev)),
           col = gray.colors(12), axes = F)
   }
-  if(!grayScale)
+  if(!greyScale)
   {
     image(t(apply(test_array[random[i],,,1], 2, rev)),
           col = fade(hcl.colors(12, "YlOrRd", rev = FALSE), 100), axes = F)

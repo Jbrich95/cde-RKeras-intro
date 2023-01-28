@@ -365,6 +365,7 @@ points(x = testData_Y[plotIndex], y = 0, col = "red")
 * How do your results change if you include more nodes in the hidden layers?
 * How do your results change if you make the network deeper?
 * Try including some form of regularisation (e.g. Dropout or L1 regularisation) in the hidden layers to help prevent overfitting.
+* There's some extra details in keras_build.html, including how to save/load models (can be difficult with custom loss functions), multi input/output models, homogeneous model parameters 
 
 
 

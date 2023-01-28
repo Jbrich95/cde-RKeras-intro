@@ -62,7 +62,9 @@ If your installation works, you should be able to run the MNIST example code in 
 The course also requires the following R packages:
     
 ```{r, eval = FALSE}
-    install.packages(c("raster", "pbapply", "BiocManager"))
+    install.packages(c("raster", "pbapply", "BiocManager","remotes"))
+   BiocManager::install("EBImage")
+
 ```
 
 If the above installation does not work, you can instead use Google Colab.

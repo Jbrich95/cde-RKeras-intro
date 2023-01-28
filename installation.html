@@ -389,6 +389,7 @@ environment, you can instead run:</p>
 <pre class="r"><code>    install.packages(&quot;remotes&quot;) 
     remotes::install_github(&quot;rstudio/tensorflow&quot;) 
     remotes::install_github(&quot;rstudio/keras&quot;) 
+    
     version &lt;- &quot;3.8.10&quot;
     #Create a virtual envionment &#39;myenv&#39; with Python 3.8.10. Install tensorflow  within this environment.
     reticulate::virtualenv_create(envname = &#39;myenv&#39;,
@@ -409,7 +410,8 @@ will not work on windows.</p>
 <p>If your installation works, you should be able to run the MNIST
 example code in the section “MNIST Example” provided in this guide: <a href="https://cran.r-project.org/web/packages/keras/vignettes/index.html">https://cran.r-project.org/web/packages/keras/vignettes/index.html</a></p>
 <p>The course also requires the following R packages:</p>
-<pre class="r"><code>    install.packages(c(&quot;raster&quot;, &quot;pbapply&quot;, &quot;BiocManager&quot;))</code></pre>
+<pre class="r"><code>    install.packages(c(&quot;raster&quot;, &quot;pbapply&quot;, &quot;BiocManager&quot;,&quot;remotes&quot;))
+   BiocManager::install(&quot;EBImage&quot;)</code></pre>
 <p>If the above installation does not work, you can instead use Google
 Colab.</p>
 </div>

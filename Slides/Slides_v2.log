@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.7.4)  18 JAN 2023 16:25
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2022.7.4)  1 FEB 2023 13:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1144,7 +1144,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <5> on input line 28.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <5> not available
 (Font)              Font shape `T1/lmss/m/sl' tried instead on input line 28.
-<Images/Kaust-Logo.png, id=68, 923.45pt x 501.875pt>
+<Images/Kaust-Logo.png, id=56, 923.45pt x 501.875pt>
 File: Images/Kaust-Logo.png Graphic file (type png)
 <use Images/Kaust-Logo.png>
 Package pdftex.def Info: Images/Kaust-Logo.png  used on input line 28.
@@ -1156,185 +1156,163 @@ Package pdftex.def Info: Images/Kaust-Logo.png  used on input line 28.
 
 ] [3
 
-] [4
-
 ]
-[5
+LaTeX Font Info:    Trying to load font information for T1+lmr on input line 61
+.
+
+(/usr/share/texmf/tex/latex/lm/t1lmr.fd
+File: t1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+) [4
+
+] [5
 
 ] [6
 
+] [7
+
 ]
-<Images/AI.png, id=279, 1004.75375pt x 674.52pt>
+<Images/AI.png, id=294, 1004.75375pt x 674.52pt>
 File: Images/AI.png Graphic file (type png)
 <use Images/AI.png>
-Package pdftex.def Info: Images/AI.png  used on input line 71.
+Package pdftex.def Info: Images/AI.png  used on input line 95.
 (pdftex.def)             Requested size: 256.72147pt x 172.33482pt.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <14.4> on input line 71.
+(Font)              <14.4> on input line 95.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 71.
+(Font)              <10> on input line 95.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 71.
+(Font)              <7> on input line 95.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <14.4> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 71.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 95.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <10> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 71.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 95.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <7> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 71.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 95.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 71.
+(Font)              <9> on input line 95.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <9> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 71.
- [7
-
- <./Images/AI.png>]
-<Images/ML.jpeg, id=313, 730.73pt x 378.41376pt>
-File: Images/ML.jpeg Graphic file (type jpg)
-<use Images/ML.jpeg>
-Package pdftex.def Info: Images/ML.jpeg  used on input line 81.
-(pdftex.def)             Requested size: 171.14764pt x 88.62698pt.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 95.
  [8
 
- <./Images/ML.jpeg>]
-<Images/neuron.jpg, id=345, 578.16pt x 1027.84pt>
-File: Images/neuron.jpg Graphic file (type jpg)
-<use Images/neuron.jpg>
-Package pdftex.def Info: Images/neuron.jpg  used on input line 96.
-(pdftex.def)             Requested size: 89.3364pt x 158.81168pt.
- [9
+ <./Images/AI.png>]
+<Images/DL.png, id=330, 979.66pt x 786.94pt>
+File: Images/DL.png Graphic file (type png)
+<use Images/DL.png>
+Package pdftex.def Info: Images/DL.png  used on input line 113.
+(pdftex.def)             Requested size: 167.72658pt x 134.72664pt.
 
- <./Images/neuron.jpg>]
-[10
+[9
 
-] [11
+ <./Images/DL.png>]
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <10.95> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <8> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <6> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <10> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <7> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <5> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 127.
+ [10
 
 ]
-<Images/nn.jpg, id=434, 1313.90875pt x 933.4875pt>
-File: Images/nn.jpg Graphic file (type jpg)
-<use Images/nn.jpg>
-Package pdftex.def Info: Images/nn.jpg  used on input line 116.
-(pdftex.def)             Requested size: 239.60567pt x 170.22829pt.
- [12
+<Images/NL_reg.png, id=393, 1108.14pt x 847.165pt>
+File: Images/NL_reg.png Graphic file (type png)
+<use Images/NL_reg.png>
+Package pdftex.def Info: Images/NL_reg.png  used on input line 139.
+(pdftex.def)             Requested size: 205.37926pt x 157.00745pt.
 
- <./Images/nn.jpg>]
+Overfull \vbox (4.53226pt too high) detected at line 139
+ []
+
+[11
+
+ <./Images/NL_reg.png>]
 LaTeX Font Info:    Font shape `OT1/lmss/b/n' in size <10.95> not available
-(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 126.
+(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `OT1/lmss/b/n' in size <8> not available
-(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 126.
+(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `OT1/lmss/b/n' in size <6> not available
-(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 126.
+(Font)              Font shape `OT1/lmss/bx/n' tried instead on input line 155.
 
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <10.95> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 126.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <8> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 126.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <6> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 126.
 LaTeX Font Info:    Font shape `T1/lmss/b/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <10.95> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `T1/lmss/b/it' in size <8> not available
-(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <8> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `T1/lmss/b/it' in size <6> not available
-(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/it' tried instead on input line 155.
 
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <6> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 126.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 155.
 
- [13
+ [12
+
+] [13
 
 ] [14
 
+] [15
+
+] [16
+
+] [17
+
+] [18
+
 ]
-File: Images/nn.jpg Graphic file (type jpg)
-<use Images/nn.jpg>
-Package pdftex.def Info: Images/nn.jpg  used on input line 143.
-(pdftex.def)             Requested size: 239.60567pt x 170.22829pt.
- [15
+LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <9> not available
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 241.
+ [19
+
+]
+<Images/neuron.jpg, id=668, 578.16pt x 1027.84pt>
+File: Images/neuron.jpg Graphic file (type jpg)
+<use Images/neuron.jpg>
+Package pdftex.def Info: Images/neuron.jpg  used on input line 256.
+(pdftex.def)             Requested size: 89.3364pt x 158.81168pt.
+ [20
+
+ <./Images/neuron.jpg>] [21
+
+] [22
+
+]
+<Images/singleNN.png, id=758, 1003.75pt x 825.0825pt>
+File: Images/singleNN.png Graphic file (type png)
+<use Images/singleNN.png>
+Package pdftex.def Info: Images/singleNN.png  used on input line 286.
+(pdftex.def)             Requested size: 164.30028pt x 135.05002pt.
+ [23
+
+ <./Images/singleNN.png>] [24
 
 ]
 LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <14.4> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 151.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <10> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 151.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <7> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 151.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <9> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 151.
-LaTeX Font Info:    Font shape `T1/lmss/b/n' in size <5> not available
-(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 151.
- [16
-
-]
-<Images/ReLu.png, id=596, 384.6872pt x 389.95688pt>
-File: Images/ReLu.png Graphic file (type png)
-<use Images/ReLu.png>
-Package pdftex.def Info: Images/ReLu.png  used on input line 168.
-(pdftex.def)             Requested size: 83.86328pt x 85.01129pt.
- [17
-
- <./Images/ReLu.png>]
-<Images/cfilter.png, id=629, 450.68375pt x 450.68375pt>
-File: Images/cfilter.png Graphic file (type png)
-<use Images/cfilter.png>
-Package pdftex.def Info: Images/cfilter.png  used on input line 180.
-(pdftex.def)             Requested size: 167.72658pt x 167.72688pt.
-
-[18
-
- <./Images/cfilter.png>]
-File: Images/cfilter.png Graphic file (type png)
-<use Images/cfilter.png>
-Package pdftex.def Info: Images/cfilter.png  used on input line 193.
-(pdftex.def)             Requested size: 133.49495pt x 133.49382pt.
- [19
-
-] [20
-
-] [21
-
-]
-<Images/rnn.png, id=753, 1314.9125pt x 480.79625pt>
-File: Images/rnn.png Graphic file (type png)
-<use Images/rnn.png>
-Package pdftex.def Info: Images/rnn.png  used on input line 213.
-(pdftex.def)             Requested size: 239.60567pt x 87.61069pt.
- [22
-
- <./Images/rnn.png>]
-File: Images/rnn.png Graphic file (type png)
-<use Images/rnn.png>
-Package pdftex.def Info: Images/rnn.png  used on input line 220.
-(pdftex.def)             Requested size: 342.2953pt x 125.15813pt.
- [23
-
-]
-File: Images/rnn.png Graphic file (type png)
-<use Images/rnn.png>
-Package pdftex.def Info: Images/rnn.png  used on input line 231.
-(pdftex.def)             Requested size: 171.14764pt x 62.57906pt.
-
-[24
-
-]
-File: Images/rnn.png Graphic file (type png)
-<use Images/rnn.png>
-Package pdftex.def Info: Images/rnn.png  used on input line 241.
-(pdftex.def)             Requested size: 171.14764pt x 62.57906pt.
+(Font)              Font shape `T1/lmss/bx/n' tried instead on input line 311.
  [25
 
-] [26
+]
+<Images/ReLu.png, id=853, 384.6872pt x 389.95688pt>
+File: Images/ReLu.png Graphic file (type png)
+<use Images/ReLu.png>
+Package pdftex.def Info: Images/ReLu.png  used on input line 328.
+(pdftex.def)             Requested size: 83.86328pt x 85.01129pt.
+ [26
 
-] [27
+ <./Images/ReLu.png>] [27
 
 ] [28
 
@@ -1352,14 +1330,20 @@ Package pdftex.def Info: Images/rnn.png  used on input line 241.
 
 ] [35
 
-] [36
+]
+<Images/nn.jpg, id=1148, 1313.90875pt x 933.4875pt>
+File: Images/nn.jpg Graphic file (type jpg)
+<use Images/nn.jpg>
+Package pdftex.def Info: Images/nn.jpg  used on input line 431.
+(pdftex.def)             Requested size: 239.60567pt x 170.22829pt.
+ [36
 
-] [37
+ <./Images/nn.jpg>]
+[37
 
 ] [38
 
-]
-[39
+] [39
 
 ] [40
 
@@ -1385,7 +1369,276 @@ Package pdftex.def Info: Images/rnn.png  used on input line 241.
 
 ] [51
 
-] [52
+]
+[52
+
+] [53
+
+]
+<Images/1dconv.png, id=1663, 1339.0025pt x 658.46pt>
+File: Images/1dconv.png Graphic file (type png)
+<use Images/1dconv.png>
+Package pdftex.def Info: Images/1dconv.png  used on input line 586.
+(pdftex.def)             Requested size: 342.2953pt x 168.32204pt.
+LaTeX Font Info:    Trying to load font information for TS1+lmss on input line 
+586.
+ (/usr/share/texmf/tex/latex/lm/ts1lmss.fd
+File: ts1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
+) [54
+
+ <./Images/1dconv.png>]
+<Images/2dconv.png, id=1694, 660.4675pt x 656.4525pt>
+File: Images/2dconv.png Graphic file (type png)
+<use Images/2dconv.png>
+Package pdftex.def Info: Images/2dconv.png  used on input line 593.
+(pdftex.def)             Requested size: 154.03183pt x 153.0944pt.
+[55
+
+ <./Images/2dconv.png>]
+<Images/conv1.png, id=1725, 648.92438pt x 561.59813pt>
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 601.
+(pdftex.def)             Requested size: 154.03183pt x 133.30382pt.
+ [56
+
+ <./Images/conv1.png>]
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 626.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+
+Overfull \hbox (5.09645pt too wide) in paragraph at lines 626--626
+[]$\OMS/lmsy/m/n/10.95 ^^C[] [] \OT1/lmss/m/n/10.95 =$ 
+ []
+
+<Images/conv2.png, id=1755, 648.92438pt x 561.59813pt>
+File: Images/conv2.png Graphic file (type png)
+<use Images/conv2.png>
+Package pdftex.def Info: Images/conv2.png  used on input line 626.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+[57
+
+ <./Images/conv2.png>]
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 649.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv3.png, id=1786, 648.92438pt x 561.59813pt>
+File: Images/conv3.png Graphic file (type png)
+<use Images/conv3.png>
+Package pdftex.def Info: Images/conv3.png  used on input line 649.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [58
+
+ <./Images/conv3.png>]
+<Images/conv4.png, id=1816, 648.92438pt x 561.59813pt>
+File: Images/conv4.png Graphic file (type png)
+<use Images/conv4.png>
+Package pdftex.def Info: Images/conv4.png  used on input line 658.
+(pdftex.def)             Requested size: 171.14764pt x 148.11154pt.
+ [59
+
+ <./Images/conv4.png>]
+Overfull \hbox (5.5602pt too wide) in paragraph at lines 683--683
+[]$\OMS/lmsy/m/n/10.95 ^^C [] \OT1/lmss/m/n/10.95 =$ 
+ []
+
+<Images/conv5.png, id=1846, 648.92438pt x 561.59813pt>
+File: Images/conv5.png Graphic file (type png)
+<use Images/conv5.png>
+Package pdftex.def Info: Images/conv5.png  used on input line 683.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+[60
+
+ <./Images/conv5.png>]
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 706.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv6.png, id=1877, 648.92438pt x 561.59813pt>
+File: Images/conv6.png Graphic file (type png)
+<use Images/conv6.png>
+Package pdftex.def Info: Images/conv6.png  used on input line 706.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [61
+
+ <./Images/conv6.png>]
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 729.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv7.png, id=1908, 648.92438pt x 561.59813pt>
+File: Images/conv7.png Graphic file (type png)
+<use Images/conv7.png>
+Package pdftex.def Info: Images/conv7.png  used on input line 729.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [62
+
+ <./Images/conv7.png>]
+File: Images/conv1.png Graphic file (type png)
+<use Images/conv1.png>
+Package pdftex.def Info: Images/conv1.png  used on input line 752.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv8.png, id=1938, 648.92438pt x 561.59813pt>
+File: Images/conv8.png Graphic file (type png)
+<use Images/conv8.png>
+Package pdftex.def Info: Images/conv8.png  used on input line 752.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+
+[63
+
+ <./Images/conv8.png>]
+<Images/conv11.png, id=1968, 648.92438pt x 561.59813pt>
+File: Images/conv11.png Graphic file (type png)
+<use Images/conv11.png>
+Package pdftex.def Info: Images/conv11.png  used on input line 782.
+(pdftex.def)             Requested size: 82.15274pt x 71.09079pt.
+<Images/conv12.png, id=1969, 648.92438pt x 561.59813pt>
+File: Images/conv12.png Graphic file (type png)
+<use Images/conv12.png>
+Package pdftex.def Info: Images/conv12.png  used on input line 782.
+(pdftex.def)             Requested size: 82.15274pt x 71.09079pt.
+<Images/conv13.png, id=1970, 648.92438pt x 561.59813pt>
+File: Images/conv13.png Graphic file (type png)
+<use Images/conv13.png>
+Package pdftex.def Info: Images/conv13.png  used on input line 782.
+(pdftex.def)             Requested size: 82.15274pt x 71.09079pt.
+<Images/conv14.png, id=1971, 648.92438pt x 561.59813pt>
+File: Images/conv14.png Graphic file (type png)
+<use Images/conv14.png>
+Package pdftex.def Info: Images/conv14.png  used on input line 782.
+(pdftex.def)             Requested size: 82.15274pt x 71.09079pt.
+ [64
+
+ <./Images/conv11.png> <./Images/conv12.png> <./Images/conv13.png> <./Images/co
+nv14.png>] [65
+
+]
+<Images/cfilter.png, id=2033, 450.68375pt x 450.68375pt>
+File: Images/cfilter.png Graphic file (type png)
+<use Images/cfilter.png>
+Package pdftex.def Info: Images/cfilter.png  used on input line 801.
+(pdftex.def)             Requested size: 167.72658pt x 167.72688pt.
+ [66
+
+ <./Images/cfilter.png>]
+File: Images/cfilter.png Graphic file (type png)
+<use Images/cfilter.png>
+Package pdftex.def Info: Images/cfilter.png  used on input line 814.
+(pdftex.def)             Requested size: 133.49495pt x 133.49382pt.
+
+[67
+
+] [68
+
+] [69
+
+]
+<Images/conv15.png, id=2153, 648.92438pt x 561.59813pt>
+File: Images/conv15.png Graphic file (type png)
+<use Images/conv15.png>
+Package pdftex.def Info: Images/conv15.png  used on input line 855.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv16.png, id=2154, 648.92438pt x 561.59813pt>
+File: Images/conv16.png Graphic file (type png)
+<use Images/conv16.png>
+Package pdftex.def Info: Images/conv16.png  used on input line 855.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [70
+
+ <./Images/conv15.png> <./Images/conv16.png>]
+File: Images/conv16.png Graphic file (type png)
+<use Images/conv16.png>
+Package pdftex.def Info: Images/conv16.png  used on input line 872.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv17.png, id=2185, 648.92438pt x 561.59813pt>
+File: Images/conv17.png Graphic file (type png)
+<use Images/conv17.png>
+Package pdftex.def Info: Images/conv17.png  used on input line 872.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [71
+
+ <./Images/conv17.png>]
+File: Images/conv16.png Graphic file (type png)
+<use Images/conv16.png>
+Package pdftex.def Info: Images/conv16.png  used on input line 891.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+<Images/conv18.png, id=2216, 648.92438pt x 561.59813pt>
+File: Images/conv18.png Graphic file (type png)
+<use Images/conv18.png>
+Package pdftex.def Info: Images/conv18.png  used on input line 891.
+(pdftex.def)             Requested size: 109.537pt x 94.79344pt.
+ [72
+
+ <./Images/conv18.png>]
+<Images/CNNstructure.png, id=2246, 1441.385pt x 489.83pt>
+File: Images/CNNstructure.png Graphic file (type png)
+<use Images/CNNstructure.png>
+Package pdftex.def Info: Images/CNNstructure.png  used on input line 905.
+(pdftex.def)             Requested size: 273.83728pt x 93.05371pt.
+ [73
+
+ <./Images/CNNstructure.png>]
+<Images/CNNorig.png, id=2277, 1334.9875pt x 839.135pt>
+File: Images/CNNorig.png Graphic file (type png)
+<use Images/CNNorig.png>
+Package pdftex.def Info: Images/CNNorig.png  used on input line 912.
+(pdftex.def)             Requested size: 308.06367pt x 193.63719pt.
+
+[74
+
+ <./Images/CNNorig.png>] [75
+
+] [76
+
+]
+<Images/cat.png, id=2363, 1431.3475pt x 993.7125pt>
+File: Images/cat.png Graphic file (type png)
+<use Images/cat.png>
+Package pdftex.def Info: Images/cat.png  used on input line 937.
+(pdftex.def)             Requested size: 308.06367pt x 213.87146pt.
+
+Overfull \vbox (3.86711pt too high) detected at line 937
+ []
+
+[77
+
+ <./Images/cat.png>]
+<Images/rnn.png, id=2392, 1314.9125pt x 480.79625pt>
+File: Images/rnn.png Graphic file (type png)
+<use Images/rnn.png>
+Package pdftex.def Info: Images/rnn.png  used on input line 948.
+(pdftex.def)             Requested size: 239.60567pt x 87.61069pt.
+ [78
+
+ <./Images/rnn.png>]
+File: Images/rnn.png Graphic file (type png)
+<use Images/rnn.png>
+Package pdftex.def Info: Images/rnn.png  used on input line 955.
+(pdftex.def)             Requested size: 342.2953pt x 125.15813pt.
+ [79
+
+]
+File: Images/rnn.png Graphic file (type png)
+<use Images/rnn.png>
+Package pdftex.def Info: Images/rnn.png  used on input line 966.
+(pdftex.def)             Requested size: 171.14764pt x 62.57906pt.
+ [80
+
+]
+File: Images/rnn.png Graphic file (type png)
+<use Images/rnn.png>
+Package pdftex.def Info: Images/rnn.png  used on input line 976.
+(pdftex.def)             Requested size: 171.14764pt x 62.57906pt.
+ [81
+
+] [82
+
+] [83
+
+]
+[84
 
 ]
 \tf@nav=\write8
@@ -1397,81 +1650,44 @@ Package pdftex.def Info: Images/rnn.png  used on input line 241.
 \tf@snm=\write10
 \openout10 = `Slides_v2.snm'.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 453.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 453.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1000.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1000.
+ (./Slides_v2.aux)
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1000.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1000.
 
-(./Slides_v2.aux
-
-Package pdfbase Warning: Rerun to get internal references right!
-
-)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 453.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 453.
-
-
-Package rerunfilecheck Warning: File `Slides_v2.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `Slides_v2.out':
-(rerunfilecheck)             Before: 5C9E4D37376FD958DB2DE17D7F9C3B04;733
-(rerunfilecheck)             After:  5A6BF7E57AE80C58A66EDC66D1FC9943;661.
+Package rerunfilecheck Info: File `Slides_v2.out' has not changed.
+(rerunfilecheck)             Checksum: F95D7A6217BE014396A7CC4A2EAEA795;589.
  ) 
 Here is how much of TeX's memory you used:
- 22917 strings out of 481239
- 459480 string characters out of 5920378
- 708527 words of memory out of 5000000
- 37478 multiletter control sequences out of 15000+600000
- 657713 words of font info for 114 fonts, out of 8000000 for 9000
+ 23221 strings out of 481239
+ 464105 string characters out of 5920378
+ 709524 words of memory out of 5000000
+ 37693 multiletter control sequences out of 15000+600000
+ 682012 words of font info for 123 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  58i,15n,67p,798b,767s stack positions out of 5000i,500n,10000p,200000b,80000s
-pdfTeX warning (dest): name{Navigation53} has been referenced but does not ex
-ist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.5.3.51} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.5.2.50} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.5.1.49} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.5} has been referenced but does not exist,
- replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.3.4.41} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.3.3.29} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.3.2.12} has been referenced but does not e
-xist, replaced by a fixed one
-
-pdfTeX warning (dest): name{Outline0.3.1.10} has been referenced but does not e
-xist, replaced by a fixed one
-
-{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/
-dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/sha
-re/texmf/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/
-lm-ec.enc}</usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/
-fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.
-pfb></usr/share/texmf/fonts/type1/public/lm/lmmib10.pfb></usr/share/texmf/fonts
-/type1/public/lm/lmss10.pfb></usr/share/texmf/fonts/type1/public/lm/lmss12.pfb>
-</usr/share/texmf/fonts/type1/public/lm/lmss17.pfb></usr/share/texmf/fonts/type
-1/public/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public/lm/lmss9.pfb></usr/s
-hare/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf/fonts/type1/pub
-lic/lm/lmsso10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso8.pfb></usr/sha
-re/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/
-lm/lmsy6.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texm
-f/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt
-9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10
-.pfb>
-Output written on Slides_v2.pdf (52 pages, 1202715 bytes).
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf/fonts/enc/d
+vips/lm/lm-mathsy.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/
+share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dvips/lm/l
+m-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}</usr/share/texmf/f
+onts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi10.
+pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf/fonts/t
+ype1/public/lm/lmmib10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></
+usr/share/texmf/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf/fonts/type1/
+public/lm/lmss12.pfb></usr/share/texmf/fonts/type1/public/lm/lmss17.pfb></usr/s
+hare/texmf/fonts/type1/public/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public
+/lm/lmss9.pfb></usr/share/texmf/fonts/type1/public/lm/lmssbx10.pfb></usr/share/
+texmf/fonts/type1/public/lm/lmsso10.pfb></usr/share/texmf/fonts/type1/public/lm
+/lmsso8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texm
+f/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8
+.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts
+/type1/public/lm/lmtt9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/am
+sfonts/symbols/msbm10.pfb>
+Output written on Slides_v2.pdf (84 pages, 7425117 bytes).
 PDF statistics:
- 1771 PDF objects out of 2073 (max. 8388607)
- 1656 compressed objects within 17 object streams
- 125 named destinations out of 1000 (max. 500000)
- 215 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 2707 PDF objects out of 2984 (max. 8388607)
+ 2503 compressed objects within 26 object streams
+ 178 named destinations out of 1000 (max. 500000)
+ 306 words of extra memory for PDF output out of 10000 (max. 10000000)
 

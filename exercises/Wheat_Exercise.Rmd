@@ -34,14 +34,14 @@ output: beamer_presentation
 
 ```{r, eval=TRUE}
 #For those using Colab run: install.packages("keras")
-load("../Data/wheat.RData")
+load("../Data/Wheat.Rdata")
 ```
-* The dataset contains both training and test data, with response denoted by $Y$ and predictors denoted by $\mathbf{X}$
-* The training and test sets were determined by randomly allocating approximately 10% of the simulations to the test/validation set and the remaining 90% to the training set.
+* The dataset contains both training and validation data, with response denoted by $Y$ and predictors denoted by $\mathbf{X}$
+* The training and validation sets were determined by randomly allocating approximately 10% of the simulations to the validation set and the remaining 90% to the training set.
 
 ```{r, eval=TRUE}
 dim(trainData_X)
-dim(testData_X)
+dim(validationData_X)
 ```
 
 # Data normalisation
@@ -64,10 +64,10 @@ colMaxsX <- apply(trainData_X, 2, max)
 
 
 ```{r, eval=TRUE}
-trainData_X_scaled <- t(apply(trainData_X, 1, rescaleCols, 
-                              colMinsX, colMaxsX))
-testData_X_scaled <- t(apply(testData_X, 1, rescaleCols, 
-                             colMinsX, colMaxsX))
+trainData_X_scaled <- t(apply(trainData_X, 1, 
+        rescaleCols,  colMinsX, colMaxsX))
+validationData_X_scaled <- t(apply(validationData_X, 1, 
+        rescaleCols, colMinsX, colMaxsX))
 ```
 
 # Response
@@ -77,7 +77,8 @@ testData_X_scaled <- t(apply(testData_X, 1, rescaleCols,
 ```{r, eval=TRUE}
 trainData_Y = matrix(trainData_Y[, "wheatTotalWeight"], 
                      ncol = 1)
-testData_Y = matrix(testData_Y[, "wheatTotalWeight"],
+validationData_Y = matrix(
+  validationData_Y[, "wheatTotalWeight"],
                     ncol = 1)
 ```
 
@@ -154,7 +155,8 @@ epochs to find the optimal fit.
 history <- model %>% fit(
   x = trainData_X_scaled, y = trainData_Y,
   epochs = 30, batch_size = 32, 
-  validation_data = list(testData_X_scaled, testData_Y)
+  validation_data = list(
+    validationData_X_scaled, validationData_Y)
 )
 ```
 
@@ -171,8 +173,8 @@ plot(history)
 # Predictions
 * Check predictions
 ```{r, eval=FALSE}
-pred_test <- predict(model, testData_X_scaled)
-plot(testData_Y, pred_test, 
+pred_validation <- predict(model, validationData_X_scaled)
+plot(validationData_Y, pred_validation, 
      xlab = " True Plant Biomass (kg/ha)",
      ylab = " Predicted Plant Biomass (kg/ha)", 
      pch = 20, 
@@ -182,8 +184,8 @@ abline(0, 1, col = "red")
 
 # Predictions
 ```{r, eval=TRUE, echo=FALSE}
-pred_test <- predict(model, testData_X_scaled)
-plot(testData_Y, pred_test, 
+pred_validation <- predict(model, validationData_X_scaled)
+plot(validationData_Y, pred_validation, 
      xlab = " True Plant Biomass (kg/ha)",
      ylab = " Predicted Plant Biomass (kg/ha)", 
      pch = 20, 
@@ -228,11 +230,11 @@ Important notes:
 negLL_logNormal <- function(y_true, y_pred)
 {
   K <- backend()
-  # Extract the first and second columns of predictions
+# Extract the first and second columns of predictions
   mu <- (y_pred[,1])
   sigma <- K$exp(y_pred[,2])
   
-  #Extract first column of y_true to ensure same dimensions
+# Extract first column of y_true to ensure same dimensions
   y <- y_true[,1]
   
   # Use mu and sigma as parameters 
@@ -301,7 +303,8 @@ callback <- list(
 history <- model2 %>% fit(
   x = trainData_X_scaled, y = trainData_Y,
   epochs = 50, batch_size = 32, 
-  validation_data = list(testData_X_scaled, testData_Y),
+  validation_data = list(
+    validationData_X_scaled, validationData_Y),
   callbacks = callback
 )
 ```
@@ -316,7 +319,7 @@ history <- model2 %>% fit(
 * We can compare the mean of the log-normal to the true yield.
 
 ```{r, eval=TRUE}
-yhat <- predict(model2, testData_X_scaled)
+yhat <- predict(model2, validationData_X_scaled)
 mu <- yhat[, 1]
 sigma <- exp(yhat[, 2])
 pred_mean <- exp(mu + 0.5*sigma^2)
@@ -324,7 +327,7 @@ pred_mean <- exp(mu + 0.5*sigma^2)
 
 # Predictions
 ```{r, eval=TRUE, echo=FALSE}
-plot(testData_Y, pred_mean, xlab = " True Plant Biomass (kg/ha)",
+plot(validationData_Y, pred_mean, xlab = " True Plant Biomass (kg/ha)",
      ylab = " Predicted Plant Biomass (kg/ha)", xlim = c(0, 3000),
      ylim = c(0, 3000), pch = 20, col = adjustcolor("black", 0.2))
 abline(0, 1, col = "red")
@@ -342,7 +345,7 @@ yieldDist <- dlnorm(xgrid, meanlog = mu[plotIndex],
 plot(xgrid, yieldDist, ty = "l", 
      main = paste0("Val. Sample ", plotIndex), xlab = "Biomass (kg/ha)",
      ylab = "Probability Density")
-points(x = testData_Y[plotIndex], y = 0, col = "red")
+points(x = validationData_Y[plotIndex], y = 0, col = "red")
 ```
 
 # Predicted densities
@@ -356,7 +359,7 @@ yieldDist <- dlnorm(xgrid, meanlog = mu[plotIndex],
 plot(xgrid, yieldDist, ty = "l", 
      main = paste0("Val. Sample ", plotIndex), xlab = "Biomass (kg/ha)",
      ylab = "Probability Density")
-points(x = testData_Y[plotIndex], y = 0, col = "red")
+points(x = validationData_Y[plotIndex], y = 0, col = "red")
 
 ```
 

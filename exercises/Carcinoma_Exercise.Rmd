@@ -45,7 +45,7 @@ packageDataDir = system.file("extdata",
 trainData <- extract_feature(
   paste0(packageDataDir, "/carcinoma/train/"),
    width, height, greyScale, TRUE)
-testData <- extract_feature(
+validationData <- extract_feature(
   paste0(packageDataDir, "/carcinoma/test/"), 
     width, height, greyScale, TRUE)
 ```
@@ -65,23 +65,23 @@ dim(train_array) <- c(width, height, numInputChannels,
                       nrow(trainData$X))
 train_array <- aperm(train_array, c(4,1,2,3))
   
-test_array <- t(testData$X)
-dim(test_array) <- c(width, height, numInputChannels, 
-                     nrow(testData$X))
-test_array <- aperm(test_array, c(4,1,2,3))
+validation_array <- t(validationData$X)
+dim(validation_array) <- c(width, height, numInputChannels, 
+                     nrow(validationData$X))
+validation_array <- aperm(validation_array, c(4,1,2,3))
 ```
 
 # Plot
 Top: positive. Bottom: negative.
 
 ```{r,eval=T,echo=F}
-truth <- testData$y
+truth <- validationData$y
 
 par(mfrow = c(2, 4), mar = rep(0, 4))
 inds<-c(sample(which(truth==1),4),sample(which(truth==0),4))
 for(i in 1:8){
    if(greyScale){
-    image(t(apply(test_array[random[i],,,], 2, rev)),
+    image(t(apply(validation_array[random[i],,,], 2, rev)),
           col = gray.colors(12), axes = F)
    }else{
     img<-train_array[inds[i],,,]
@@ -187,7 +187,7 @@ Let's train the model
 history <- model %>% fit(
   x = train_array, y = as.numeric(trainData$y),
   epochs = 50, batch_size = 32, validation_data =
-    list(test_array,as.numeric(testData$y))
+    list(validation_array,as.numeric(validationData$y))
 )
 ```
 
@@ -278,7 +278,7 @@ history <- model %>% fit(
         monitor = "val_loss",
       factor = 0.25, patience = 5)),
   epochs = 50, batch_size = 32, validation_data =
-    list(test_array,as.numeric(testData$y))
+    list(validation_array,as.numeric(validationData$y))
 )
 ```
 
@@ -298,16 +298,16 @@ Now the final fitted model minimises the validation loss.
 
 * We can obtain the outputs of the model (sigmoid activation) 
 ```{r,eval= T}
-probabilities <- predict(model, test_array)
+probabilities <- predict(model, validation_array)
 ```
-* We can then obtain the predicted classes for the test/validation dataset
+* We can then obtain the predicted classes for the validation/validation dataset
 ```{r,eval= T}
 predictions <- as.numeric(probabilities %>%
 `>`(0.5) %>% k_cast("int32"))
 ```
 * and check the accuracy of the predictions
 ```{r, eval = T}
-truth <- testData$y
+truth <- validationData$y
 propCorrect <- sum(predictions == truth)/length(truth)
 print(propCorrect)
 ```
@@ -315,7 +315,7 @@ print(propCorrect)
 # Checking performance
 
 ```{r,echo = F}
-random <- sample(1:nrow(testData$X), 16)
+random <- sample(1:nrow(validationData$X), 16)
 plot_preds <- predictions[random]
 plot_probs <- as.vector(round(probabilities[random,], 2))
 plot_truth <- truth[random]
@@ -323,7 +323,7 @@ plot_truth <- truth[random]
 par(mfrow = c(4, 4), mar = rep(0, 4))
 for(i in 1:length(random)){
   if(greyScale){
-     image(t(apply(test_array[random[i],,,], 2, rev)),
+     image(t(apply(validation_array[random[i],,,], 2, rev)),
           col = gray.colors(12), axes = F)
     
   }else{

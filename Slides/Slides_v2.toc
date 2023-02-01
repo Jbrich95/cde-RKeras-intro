@@ -1,11 +1,9 @@
 \beamer@sectionintoc {1}{Background}{3}{0}{1}
-\beamer@sectionintoc {2}{Deep learning}{7}{0}{2}
-\beamer@subsectionintoc {2}{1}{Basics of neural networks}{9}{0}{2}
-\beamer@subsectionintoc {2}{2}{Architecture}{11}{0}{2}
-\beamer@subsectionintoc {2}{3}{Training}{28}{0}{2}
-\beamer@subsectionintoc {2}{4}{Overfitting}{40}{0}{2}
-\beamer@sectionintoc {3}{Building a Keras model}{44}{0}{3}
-\beamer@sectionintoc {4}{Practicals}{45}{0}{4}
-\beamer@subsectionintoc {4}{1}{Logistic regression}{48}{0}{4}
-\beamer@subsectionintoc {4}{2}{Single quantile regression}{49}{0}{4}
-\beamer@subsectionintoc {4}{3}{GPD regression}{50}{0}{4}
+\beamer@sectionintoc {2}{Introduction to deep learning}{8}{0}{2}
+\beamer@subsectionintoc {2}{1}{What is deep learning?}{8}{0}{2}
+\beamer@subsectionintoc {2}{2}{Statistics vs deep learning}{10}{0}{2}
+\beamer@subsectionintoc {2}{3}{Basics of neural networks}{20}{0}{2}
+\beamer@subsectionintoc {2}{4}{Backpropogation}{30}{0}{2}
+\beamer@sectionintoc {3}{Implementation and regularisation}{38}{0}{3}
+\beamer@sectionintoc {4}{Convolutional neural networks}{52}{0}{4}
+\beamer@sectionintoc {5}{Recurrent neural networks}{78}{0}{5}

@@ -1,0 +1,396 @@
+---
+title: "Drought forecasting exercise"
+author: "Jordan Richards"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+  
+# Dataset
+  
+* Exercise developed by Chris Wikle and Dan Pagendam (2019).
+* The data consists of:
+  * monthly 33 x 84 grids (2 degree x 2 degree) of sea surface temperature (SST) anomaly (2772 pixels).
+  * monthly rainfall anomaly in mm for the Murray Darling Basin (MDB).
+* Obtained from two sources:
+  * http://www.bom.gov.au/climate/change/
+  * http://iridl.ldeo.columbia.edu/
+* We will use a type of recurrent NN(LSTM) model to obtain 3-month-out forecasts of rainfall anomaly using SST grids as a predictor.
+
+# Required packages
+
+We will be using some functions and the images from Dan's github directory, https://github.com/dpagendam/deepLearningRshort
+
+```{r,eval=T}
+#remotes::install_github("dpagendam/deepLearningRshort")
+
+library(keras)
+library(raster)
+library(deepLearningRshort)
+data(drought)
+```
+
+
+# Visualise SST
+
+```{r, eval=TRUE,echo=F}
+plot(anomalyRasterList[[1]], main = paste0("Sea Surface Temperature Anomaly (", dateGrid[1, 1], "/", dateGrid[1, 2], ")"),
+  xlab = "Longitude", ylab = "Latitude", zlim = c(-5, 5))
+  
+```
+
+
+# Strategy
+
+* We could apply a CNN layer recurrently to extract both sequential and spatial information from the SST grids, but this will require lots of processing power and parameters
+* Instead, we treat the SST as a multivariate time series and use regular RNNs. However, we have 2772 locations, so we first reduce the dimensionality using EOFs (PCA)
+
+# Data manipulation
+
+```{r, eval=TRUE}
+batchSize <- 32
+forecastMonthsAhead <- 3
+timestepsPerSample <- 24
+trainingInds <- 1:1300
+validationInds <- 1301:1434
+# We consider only 1434 months
+```
+
+* We will project the 2772 pixels onto 100 EOFs.
+
+```{r, eval=TRUE}
+numComponents <- 100
+EOFList <- rasterToEOFs(anomalyRasterList[trainingInds],
+numComponents = numComponents, plot = FALSE)
+v.train <- EOFList[["rasterEOFs"]][["v.dim.red"]]
+```
+
+# Plot EOFs
+
+```{r,eval=T,echo=F}
+EOFList <- rasterToEOFs(anomalyRasterList[trainingInds], numComponents = numComponents, plot = TRUE)
+
+```
+
+# Plot EOFs
+
+```{r,eval=T,echo=F}
+validPixels <- EOFList[["raster.validPixels"]]
+eof1 <- EOFsToRaster(matrix(EOFList$rasterEOFs$EOFs[, 1], ncol = 1),
+        matrix(rep(1, 1), nrow = 1), c(33, 84),
+        validPixels)[[1]]
+extent(eof1) <- extent(anomalyRasterList[[1]])
+plot(eof1, main = "1st EOF", xlab = "Longitude", ylab = "Latitude")
+```
+
+# Plot EOFs
+
+```{r,eval=T,echo=F}
+eof2 <- EOFsToRaster(matrix(EOFList$rasterEOFs$EOFs[, 2], ncol = 1),
+        matrix(rep(1, 1), nrow = 1), c(33, 84),
+        validPixels)[[1]]
+extent(eof2) <- extent(anomalyRasterList[[1]])
+plot(eof2, main = "2nd EOF", xlab = "Longitude", ylab = "Latitude")
+```
+# Plot EOFs
+
+```{r,eval=T,echo=F}
+eof100 <- EOFsToRaster(matrix(EOFList$rasterEOFs$EOFs[, 100], ncol = 1),
+        matrix(rep(1, 1), nrow = 1), c(33, 84),
+        validPixels)[[1]]
+extent(eof100) <- extent(anomalyRasterList[[1]])
+plot(eof100, main = "100th EOF", xlab = "Longitude", ylab = "Latitude")
+```
+
+# Reconstructing SST
+
+
+```{r, eval=TRUE}
+validationSample <- 1434
+X <- EOFList$rasterEOFs$EOFs
+r1 <- anomalyRasterList[[validationSample]]
+validPixels <- EOFList[["raster.validPixels"]]
+Y <- getValues(r1)
+Y <- Y[validPixels]
+lm1 <- lm(Y~X)
+intercept <- coefficients(lm1)[1]
+alpha <- coefficients(lm1)[1]
+beta <- coefficients(lm1)[2:(numComponents + 1)]
+r2 <- alpha + EOFsToRaster(X, matrix(beta, nrow = 1),
+      c(33, 84), validPixels)[[1]]
+extent(r2) <- extent(r1)
+```
+
+# Reconstructing SST
+
+```{r,eval = T, echo = F}
+par(mfrow = c(1, 2))
+plot(r1, xlab = "Longitude", ylab = "Latitude", zlim = c(-5, 5), main="Original")
+plot(r2, xlab = "Longitude", ylab = "Latitude", zlim = c(-5, 5), "Reconstructed")
+```
+
+# Dimension reduction for validation data
+
+* Here we project the validation data SST anomaly grids onto the same EOFs generated from the training data.
+*·* You can think of v.validation as a multivariate time series of coefficients that we can use to reconstruct SST anomaly from the EOFs.
+
+```{r,eval = T, echo = T}
+v.validation <- proj.raster.EOFs(
+  anomalyRasterList[validationInds],
+         EOFList[["rasterEOFs"]][["EOFs"]],
+         EOFList[["raster.validPixels"]])
+```
+
+# Dimension reduction for validation data
+
+
+```{r,eval = T, echo = F}
+par(mfrow = c(3, 1), mar = c(4,4,1,1))
+plot(trainingInds, v.train[, 1], ty = "l", xlim = c(0, 1434),
+     xlab = "Months", ylab = "Variable 1")
+lines(validationInds, v.validation[, 1], col = "blue")
+legend("topleft", legend = c("train", "validation"), horiz = TRUE,
+       box.lwd = 0, col = c("black", "blue"), lty = 1)
+plot(trainingInds, v.train[, 2], ty = "l", xlim = c(0, 1434),
+     xlab = "Months", ylab = "Variable 2")
+lines(validationInds, v.validation[, 2], col = "blue")
+legend("topleft", legend = c("train", "validation"), horiz = TRUE,
+       box.lwd = 0, col = c("black", "blue"), lty = 1)
+plot(trainingInds, v.train[, 3], ty = "l", xlim = c(0, 1434),
+     xlab = "Months", ylab = "Variable 3")
+lines(validationInds, v.validation[, 3], col = "blue")
+legend("topleft", legend = c("train", "validation"), horiz = TRUE,
+       box.lwd = 0, col = c("black", "blue"), lty = 1)
+```
+
+# Data wrangling
+
+* All predictors combined together
+
+```{r,eval = T, echo = T}
+v.combined <- rbind(v.train, v.validation)
+```
+
+* and normalised 
+
+```{r,eval = T, echo = T}
+v.scaling.train <- scaleCols.pos(
+  v.combined[trainingInds, ])
+v.train.scaled <- v.scaling.train[["X.scaled"]]
+v.scaling.validation <- scaleCols.pos(
+  v.combined[validationInds, ],
+              colMaxsX = v.scaling.train[["colMaxsX"]],
+              colMinsX = v.scaling.train[["colMinsX"]])
+v.validation.scaled <- v.scaling.validation[["X.scaled"]]
+
+v.scaled <- rbind(v.train.scaled, v.validation.scaled)
+```
+
+# Formatting data for an RNN
+
+```{r, eval = T}
+numDims <- ncol(v.scaled)
+tensorData <- tensorfyData.rnn(v.scaled, 
+              forecastMonthsAhead,
+              timestepsPerSample, indicesX = 1:numDims,
+              indicesY = 1:numComponents, 
+              indicesTrain = trainingInds,
+              indicesTest = validationInds)
+str(tensorData)
+```
+
+* Currently Y.train is a sample of sequences of MV SST anomalies, but we want to forecast the 3-month out rainfall anomaly
+
+# Response data
+
+```{r}
+Y.train.inds <- tensorData$y.train.tsInds
+Y.valid.inds <- tensorData$y.test.tsInds
+Y.train.rnn_MDB <- rainfallAnomaly[Y.train.inds, 3]
+Y.valid.rnn_MDB <- rainfallAnomaly[Y.valid.inds, 3]
+```
+
+* We will also normalise the response, but this is only because we will fit a Gaussian model
+
+```{r}
+Y.train.min <- min(Y.train.rnn_MDB)
+Y.train.max <- max(Y.train.rnn_MDB)
+
+Y.rnn.train <- (Y.train.rnn_MDB - Y.train.min)/
+                    (Y.train.max - Y.train.min)
+Y.rnn.valid <- (Y.valid.rnn_MDB - Y.train.min)/
+                    (Y.train.max - Y.train.min)
+```              
+                    
+# RNN tensors                
+
+We finally get
+
+```{r}
+X.rnn.train <- tensorData[["X.train.rnn"]]
+X.rnn.valid <- tensorData[["X.test.rnn"]]
+
+dim(X.rnn.train)
+length(Y.rnn.train)
+
+```
+
+# Custom loss
+
+```{r}
+Gaussian_logLikelihood <- function(y_true, y_pred)
+{
+  K <- backend()
+  # Extract the first and second columns of predictions
+  mu <- (y_pred[,1])
+  sigma <- K$exp(y_pred[,2])
+  
+#Extract first column of y_true to ensure same dimension
+  y <- y_true[,1]
+  
+  ll <- -0.5*((mu - y)/(sigma))^2 - K$log(sigma)
+  ll <- ll -0.5*K$log(2*pi)
+  
+  return( -(K$sum(ll)))
+}
+```
+
+
+# Building an LSTM Model 
+
+```{r, eval = T}
+library(keras)
+input.lay <- layer_input(shape = dim(X.rnn.train)[-1], 
+      name = 'input_layer')
+
+model <- input.lay %>%
+  layer_lstm(units = 128,
+      input_shape = c(timestepsPerSample, numDims),
+      return_sequences = FALSE) %>%
+  layer_dense(units = 128, activation = "relu") 
+  output.lay <- model %>% layer_dense(units = 2)
+```
+
+# Compile
+
+```{r, eval=TRUE}
+
+
+  model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+model %>% compile(loss = Gaussian_logLikelihood,
+                  optimizer = optimizer_rmsprop())
+
+```
+
+# Summary 
+
+```{r, eval = F}
+summary(model)
+```
+
+# Model training
+
+Let's train the model with early stopping and a checkpoint
+
+
+```{r, eval = T}
+history <- model %>% fit(
+  x = X.rnn.train, y = Y.rnn.train, 
+  batch_size = batchSize, epochs = 200, shuffle = FALSE, 
+  validation_data = list(X.rnn.valid, Y.rnn.valid),
+  callbacks = list(
+  callback_early_stopping(monitor = "val_loss", 
+                          min_delta = 0, patience = 20),
+  callback_model_checkpoint(filepath = "model_weights",
+      verbose=0, monitor="val_loss",
+      save_best_only = TRUE, save_weights_only = TRUE)))
+#Then load the saved weights
+model <- load_model_weights_tf(model,
+                               filepath="model_weights")
+```
+
+# Checking performance
+
+* We can calculate the mean and standard deviations of the 3 month out (Gaussian)
+predictive distributions.
+* Then create 50% and 95% prediction intervals.
+
+```{r}
+lstmPredictions <- model %>% predict(X.rnn.valid)
+
+mu <- Y.train.min + 
+  lstmPredictions[, 1]*(Y.train.max - Y.train.min)
+sigma <- exp(lstmPredictions[, 2])*
+  (Y.train.max - Y.train.min)
+n <- length(mu)
+upper95 <- mu + 1.96*sigma
+lower95 <- mu - 1.96*sigma
+upper50 <- mu + 0.674*sigma
+lower50 <- mu - 0.674*sigma
+```
+
+
+# Checking performance
+
+Plot the true time series with 3-month-out forecast and 50% and 95%
+prediction intervals.
+
+```{r, eval = F}
+plot(rainfallAnomaly[Y.validation.inds, 3], ty = "l", 
+     xlab = "Time (months)", 
+     ylab = "MDB Rainfall Anomaly (mm)")
+lines(mu, col = "blue")
+polygon(x = c(1:n, rev(1:n), 1),
+        y = c(lower95, rev(upper95), lower95[1]),
+        col = fade("blue", 100), border = NA)
+polygon(x = c(1:n, rev(1:n), 1),
+        y = c(lower50, rev(upper50), lower50[1]),
+        col = fade("blue", 100), border = NA)
+```
+
+# Checking performance
+
+
+```{r, eval = T, echo = F}
+plot(rainfallAnomaly[Y.valid.inds, 3], ty = "l", 
+     xlab = "Time (months)", 
+     ylab = "MDB Rainfall Anomaly (mm)")
+lines(mu, col = "blue")
+polygon(x = c(1:n, rev(1:n), 1),
+        y = c(lower95, rev(upper95), lower95[1]),
+        col = fade("blue", 100), border = NA)
+polygon(x = c(1:n, rev(1:n), 1),
+        y = c(lower50, rev(upper50), lower50[1]),
+        col = fade("blue", 100), border = NA)
+```
+
+# Checking performance
+
+Calculate what percentage of the time the true rainfall anomaly was within
+the 50% and 95% prediction intervals.
+
+```{r, eval = T}
+n <- (length(Y.valid.inds))
+coverage50 <- length(
+  which(rainfallAnomaly[Y.valid.inds, 3]> lower50
+  & rainfallAnomaly[Y.valid.inds, 3] < upper50))/n
+coverage95 <- length(
+  which(rainfallAnomaly[Y.valid.inds, 3] > lower95
+  & rainfallAnomaly[Y.valid.inds, 3] < upper95))/n
+print(coverage50)
+print(coverage95)
+
+```
+
+
+# Extensions
+
+* How does varying the number of units in the LSTM layer affect the predictions?
+* How do the predictions change if you add three dense layers after the LSTM layer (instead of just 1)?
+* How are the predictions if much fewer EOFs are used for prediction?
+* How does fewer EOFs affect the number of parameters in the model?
+  
+  
+  

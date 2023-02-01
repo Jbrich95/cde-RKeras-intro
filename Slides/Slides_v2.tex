@@ -182,7 +182,7 @@ where
 
 \item $\frac{\partial Q\left(\hat{\boldsymbol{\theta}}^{(j)}\right)}{\partial \boldsymbol{\theta}}$ (i.e., $\left.\nabla_{\theta} Q\left(\hat{\boldsymbol{\theta}}^{(j)}\right)\right)$ is the gradient of the objective function $Q(\boldsymbol{\theta})$ evaluated at $\hat{\boldsymbol{\theta}}$,
 
-\item $\epsilon_{j}$ is the "learning rate". 
+\item $\epsilon_{j}$ is the ''learning rate''. 
 \end{itemize}
 \end{frame}
 
@@ -258,9 +258,9 @@ $$
  Nodes in a neural network are arranged in layers:
 \begin{itemize}
 \item A single node may be connected to several nodes in the layer above, from which it \textbf{receives information}, and to the layer below, which it \textbf{feeds information}
-\item Most neural networks are \textbf{``feed forward"} - information is passed forward, layer-to-layer, in one direction only (but we also consider RNN)
+\item Most neural networks are \textbf{``feed forward''} - information is passed forward, layer-to-layer, in one direction only (but we also consider RNN)
 \item Different information (features) is extracted at each layer in a \textbf{hierarchical} fashion, i.e., the most important aspects first
-\item The ``deep" in deep learning refers to the depth of layers in a neural network as well as its hierarchical nature
+\item The ``deep'' in deep learning refers to the depth of layers in a neural network as well as its hierarchical nature
 \item Each layer can be considered as a non-linear regression of inputs from the previous layer; a neural network is simply a composition of non-linear regressions
 \end{itemize}
 \end{frame}
@@ -270,14 +270,14 @@ $$
 \item \textbf{A single output layer}. For prediction or classification problems, we would have a single node here. 
 \item A collection of \textbf{hidden layers} of variable \textbf{widths}. Preferably more than one!
 \item Calculations are completed at each node in the hidden layer. These are parameterised by \textbf{weights and biases}.
-\item In Keras, calculations within a layer are of a certain ``type". We will consider standard (\textbf{vanilla}), convolution and recurrent layers.
+\item In Keras, calculations within a layer are of a certain ``type''. We will consider standard (\textbf{vanilla}), convolution and recurrent layers.
 \end{itemize}
 We refer to the structure of a neural network as its \textbf{architecture}.
 \end{frame}
 \begin{frame}{Single layer neural network}
 \begin{itemize}
 \item Let's first consider a simple feed-forward NN with a single hidden layer, a.k.a, a \textbf{single layer perceptron}
-\item Takes input $p$-dimensional input $\mathbf{x}$, $k$-dimensional output $\hat{\mathbf{y}}$ (although $k=1$ for most problems) and single hidden layer $\mathbf{z}$ (hence ``\textbf{shallow}")
+\item Takes input $p$-dimensional input $\mathbf{x}$, $k$-dimensional output $\hat{\mathbf{y}}$ (although $k=1$ for most problems) and single hidden layer $\mathbf{z}$ (hence ``\textbf{shallow}'')
 \end{itemize}
 \begin{figure}
 \includegraphics[width=0.48\linewidth]{Images/singleNN.png}
@@ -305,7 +305,7 @@ $$
 The activation function defines the \textbf{output of the node}. There's a range of different functions that you can use (see \url{https://keras.rstudio.com/reference/activation_relu.html}), but typically they must satisfy two properties:  
 \begin{itemize}
 \item \textbf{Nonlinear}! If all nodes had linear activation, this would just be a linear regression model. A two-layered NN with non-linear activations is a \textbf{universal function approximator}.
-\item \textbf{``Continuously" differentiable}. Needed for gradient-based optimisation.
+\item \textbf{``Continuously'' differentiable}. Needed for gradient-based optimisation.
 \end{itemize}
 You can think of the activation function as an analogue to the link function in regression. 
 \end{frame}
@@ -321,7 +321,7 @@ An activation function that's popularly applied is the \textbf{rectified linear 
 \end{minipage}
 \begin{minipage}{0.49\linewidth}
 \begin{itemize}
-\item The neuron ``activates" only if \textbf{enough information passes through} (think pain receptors)
+\item The neuron ``activates'' only if \textbf{enough information passes through} (think pain receptors)
 \item One drawback: \textcolor{red}{not differentiable at zero}
 \end{itemize}
 \end{minipage}
@@ -346,7 +346,7 @@ In summary, the single layer feed-forward NN can be written:
 $$
 \hat{y}_{k}(\mathrm{x} ; \boldsymbol{\beta}, \boldsymbol{\alpha})=h\left(\sum_{j=0}^{J} \beta_{k j} g\left(\sum_{i=0}^{p} \alpha_{j i} x_{i}\right)\right).
 $$
-As with traditional statistical regression, we estimate the parameters (or "train the network") by choosing an objective function $Q(\hat{\mathbf{y}},\mathbf{y}; \boldsymbol{\alpha}, \boldsymbol{\beta})$ and then use stochastic gradient descent to obtain parameter estimates of the weight/bias vectors, $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
+As with traditional statistical regression, we estimate the parameters (or ''train the network'') by choosing an objective function $Q(\hat{\mathbf{y}},\mathbf{y}; \boldsymbol{\alpha}, \boldsymbol{\beta})$ and then use stochastic gradient descent to obtain parameter estimates of the weight/bias vectors, $\boldsymbol{\alpha}$ and $\boldsymbol{\beta}$.
 
 Note that this formulation illustrates that an NN is just a \textbf{composition of non-linear activations of convex sums}.
 \end{frame}
@@ -362,7 +362,7 @@ Note that this formulation illustrates that an NN is just a \textbf{composition 
 
 \subsection{Backpropogation}
 \begin{frame}{Backpropagation}
-In order to use SGD, we require the negative log-likelihood of $Q$ w.r.t the weight/biases. This may seem like a fairly daunting task, particularly if we have many weights or additional layers. However,  the neural net community uses an algorithm called "\textbf{backpropagation}" to evaluate the gradients very quickly; this is nothing more than iterative application of the chain rule, which is particularity easy due to the hierarchical nature of the model.
+In order to use SGD, we require the negative log-likelihood of $Q$ w.r.t the weight/biases. This may seem like a fairly daunting task, particularly if we have many weights or additional layers. However,  the neural net community uses an algorithm called ''\textbf{backpropagation}'' to evaluate the gradients very quickly; this is nothing more than iterative application of the chain rule, which is particularity easy due to the hierarchical nature of the model.
 
 $$
 \begin{aligned}
@@ -401,7 +401,7 @@ The gradient vectors fed in SGD and \textbf{updates are done in a two-pass algor
 \item In the \textbf{forward pass}, the current weights values are fixed and $z_{j}$ and $\hat{y}$ are calculated using $(1)$ and $(2)$
 \item In the \textbf{backward pass}, the gradients are then calculated from (3) and (4); then, the parameters are updated using the SGD updates shown earlier.
 \end{itemize}
-An important feature of backpropagation algorithms is that each hidden unit passes and receives information only to and from units that share a connection - i.e., it is a "local" algorithm. This facilitates computation in a parallel computing environment, which is important for large datasets.
+An important feature of backpropagation algorithms is that each hidden unit passes and receives information only to and from units that share a connection - i.e., it is a ''local'' algorithm. This facilitates computation in a parallel computing environment, which is important for large datasets.
 \end{frame}
 
 \begin{frame}{Automatic differentiation}
@@ -478,7 +478,7 @@ Although the backpropagation algorithm is simple, the challenge is to implement 
 \end{frame}
 \begin{frame}{Initialisation}
 \textbf{Weight initialization:}
-Given the highly nonlinear nature of neural models, they can be very sensitive to the initial parameter values. Two general heuristic "principles" to consider:
+Given the highly nonlinear nature of neural models, they can be very sensitive to the initial parameter values. Two general heuristic ''principles'' to consider:
 \begin{itemize}
 \item choose initial weights such that each hidden variable is operating in the linear range of its activation function, i.e., not so large or small that the derivative is initialised at zero; as this depends on both the weights and the inputs, this is why we standardize the inputs
 \item choose initial weights randomly (hidden units are interchangeable; one needs them to find different features, so it is important that they not have the same weights) (default in Keras)
@@ -539,7 +539,7 @@ It may be preferable to have large gradient variance at the beginning of the opt
 
 \begin{frame}{Hyper-parameters}
 \textbf{Architecture:}\\
-The number of layers and the number of hidden units in each layer are also hyper-parameters that need to be chosen. Other than the fact that we need enough hidden units to capture structure, and we don't want "too many" (to prevent overfitting), choosing the complexity isn't an exact art. This is very much the "art" of deep modelling.\\
+The number of layers and the number of hidden units in each layer are also hyper-parameters that need to be chosen. Other than the fact that we need enough hidden units to capture structure, and we don't want ''too many'' (to prevent overfitting), choosing the complexity isn't an exact art. This is very much the ''art'' of deep modelling.\\
 
 In general, wide/shallow models are easier to overfit and narrow/deep models are easier to underfit. It is often recommended that the lower levels have more hidden units, but bottlenecks in networks can also be helpful.\\
 We can choose the architecture through model \textbf{testing} (not validation!). I typically start with a standard architecture (across all projects) and then just iteratively test changes in complexity.
@@ -576,7 +576,7 @@ $$
 f[x, y] * g[x, y]=\sum_{i=-\infty}^{\infty} \sum_{j=-\infty}^{\infty} f[i, j] g[x-i, y-j]
 $$
 
-So, we can think of $f[]$ as a "kernel" weight function that is applied to elements of the spatial image $g[]$. We are familiar with this concept in terms of kernel smoothing; note that in kernel smoothing, the kernels must integrate to 1 (or sum, in the case of discrete data) - this is not the case for convolution - but, we sometimes still call them \textbf{kernels} or \textbf{filters}.
+So, we can think of $f[]$ as a ''kernel'' weight function that is applied to elements of the spatial image $g[]$. We are familiar with this concept in terms of kernel smoothing; note that in kernel smoothing, the kernels must integrate to 1 (or sum, in the case of discrete data) - this is not the case for convolution - but, we sometimes still call them \textbf{kernels} or \textbf{filters}.
 \end{frame}
 \begin{frame}{Convolution: 1-d example}
 \begin{figure}
@@ -783,7 +783,7 @@ Lots of different features extracted. Ideally, we want an algorithm that can lea
 
 \begin{frame}{Image convolutions}
 \textbf{Tensors}: In practice, input (images) are often tensors, so that there is a multivariate value at each spatial location (pixel). For example, in \textbf{RGB} color images, there are three values (associated with red, green and blue intensities) that define the overall colour of a pixel color.\\
-If the input is RGB, a CNN considers a tensor convolution where the kernel averages  over location and the variables (referred to as "\textbf{channels}").
+If the input is RGB, a CNN considers a tensor convolution where the kernel averages  over location and the variables (referred to as ''\textbf{channels}'').
 \end{frame}
 
 
@@ -795,7 +795,7 @@ A \textbf{convolution layer} acts on an image, not a vector of inputs. The image
 \begin{minipage}{0.49\linewidth}
 \begin{itemize}
 \item A convolution filter/kernel of a certain dimension is passed over the image
-\item The filter starts in a corner of the image. A convolution is performed, and then the filter moves one horizontal ``stride". Once it reaches the edge, it moves one vertical stride down. 
+\item The filter starts in a corner of the image. A convolution is performed, and then the filter moves one horizontal ``stride''. Once it reaches the edge, it moves one vertical stride down. 
 \end{itemize}
 \end{minipage}
 \end{frame}
@@ -806,7 +806,7 @@ A \textbf{convolution layer} acts on an image, not a vector of inputs. The image
 \begin{minipage}{0.59\linewidth}
 \begin{itemize}
 \item After the filter has passed over the entire image, a \textbf{feature map} will be produced. The dimension of the feature map will be determined by the filter dimension and the strides
-\item An image can have multiple ``channels", i.e., different colours, inputs, each with its own filter
+\item An image can have multiple ``channels'', i.e., different colours, inputs, each with its own filter
 \item The feature maps for the different channels are added, a bias is introduced and then $a$ is applied 
 \item A layer can have \textbf{multiple filters}, similar to nodes in a densely-connected network
 \end{itemize}
@@ -817,7 +817,7 @@ A \textbf{convolution layer} acts on an image, not a vector of inputs. The image
 \begin{itemize}
 \item One of the strengths of CNNs is that it learns kernel weights, but \textbf{reduces the parameter space} by assuming that there is only one set of weights for each convolution. This ability to share weights leads to a huge dimension reduction in the parameter space (compared to a DNN).
 \item Then CNN considers a convolution of the image with unknown weights that are learned.
-\item Then the convolution step is followed by a \textbf{pooling layer} (or, ``subsampling" or ``downsampling"), which further reduces the dimension.
+\item Then the convolution step is followed by a \textbf{pooling layer} (or, ``subsampling'' or ``downsampling''), which further reduces the dimension.
 \end{itemize}
 \end{frame}
 
@@ -936,8 +936,43 @@ Original LeCun CNN for MNIST handwriting:
 \end{figure}
 \end{frame}
 \section{Recurrent neural networks}
+\begin{frame}{Recurrent neural networks}
+The types of FFNNs that we have covered thus far do not explicitly account for \textbf{sequential/temporal dependence} between inputs and outputs. \\
+This gives them limited capacity for solving tasks which depend on the sequential nature of an input, e.g.,
+\begin{itemize}
+\item Document and time-series classification
+\item Speech recognition
+\item Sequence-to-sequence learning (language translation)
+\item Sentiment analysis
+\item Forecasting
+\end{itemize}
 
-\begin{frame}{Recurrent layers\footnote{Copyright belongs to \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}}
+\end{frame}
+\begin{frame}{Recurrent neural networks}
+Recurrent Neural Networks (RNNs) were originally developed in the 1980s as feedback models for sequence data. In recent years, they have become one of the \textbf{most used and successful deep learning methods}, particularly for language processing applications.\\
+These models are closely related to multivariate state-space models for \textbf{dynamical systems}, as one might see in time series, econometrics, or spatio-temporal statistics.
+
+\end{frame}
+\begin{frame}{Dynamical systems}
+A classical dynamical system can be written by
+
+$$
+\mathbf{s}_{t}=f\left(\mathbf{s}_{t-1} ; \boldsymbol{\theta}\right),
+$$
+
+where $\mathbf{s}_{t}$ represents the state of the system at time $t$. This is considered ''recurrent'' because the state at time $t$ refers back to the state at time $t-1$. We can ``unfold'' this into
+
+$$
+\mathbf{s}_{t}=f\left(\mathbf{s}_{t-1} ; \boldsymbol{\theta}\right)=f\left(f\left(\mathbf{s}_{t-2} ; \boldsymbol{\theta}\right) ; \boldsymbol{\theta}\right)=f\left(f\left(f\left(\mathbf{s}_{t-3} ; \boldsymbol{\theta}\right) ; \boldsymbol{\theta}\right) ; \boldsymbol{\theta}\right) \ldots
+$$
+
+Note, the parameters $\theta$ are shared across all states. 
+\end{frame}
+
+
+
+
+\begin{frame}{RNNs\footnote{Copyright belongs to \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}}
 A recurrent layer takes in as input a sequence of vectors/images. Let's say that the input is the sequence of vectors $\{\mathbf{x}_t:t=1,\dots,T\}$ where $\mathbf{x}_t\in\mathbb{R}^d$ for all $t$.
 
 \begin{figure}
@@ -946,47 +981,86 @@ A recurrent layer takes in as input a sequence of vectors/images. Let's say that
 \end{figure}
 Once an input enters the layer, it becomes stuck in a \textbf{recurrence loop} - the output from the computation using the first input vector $\mathbf{x}_1$ becomes an input for the computation on $\mathbf{x}_2$ (and so on...).
 \end{frame}
-\begin{frame}{Recurrent layers\footnote{Copyright belongs to \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}}
+
+\begin{frame}{RNNs}
+In an RNN, as with a traditional state space model, the states are typically considered ``hidden'' (we denote these hidden states $\mathbf{h}_{t}$) and add external inputs $\mathbf{x}_{t}$:
+$$
+\mathbf{h}_{t}=f\left(\textcolor{blue}{\mathbf{h}_{t-1}}, \mathbf{x}_{t} ; \boldsymbol{\theta}\right)
+$$
+So, sequences are processed by iterating through the sequence elements and maintaining a state containing information relative to what it has seen so far via an internal feedback loop. The following image shows how this is unfolded into a computational graph structure:
 \begin{figure}
-\centering
-\includegraphics[width=\textwidth]{Images/rnn.png}
+\includegraphics[width=0.86\linewidth]{Images/RNN1.png}
 \end{figure}
+\centering \copyright C. K. Wikle and D. Pagendam 
+\end{frame}
+\begin{frame}{RNNs}
+A single-layered in a basic ("vanilla") RNN can be written as
+
+$$
+\begin{gathered}
+\hat{\mathbf{y}}_{t}=g_{o}\left(\mathbf{o}_{t}\right) \\
+\mathbf{o}_{t}=\mathbf{W}_{h \hat{y}} \mathbf{h}_{t} \\
+\mathbf{h}_{t}=g_{h}\left(\mathbf{W}_{h h} \mathbf{h}_{t-1}+\mathbf{W}_{x h} \mathbf{x}_{t}\right)
+\end{gathered}
+$$
+
+for activation functions $g_{o}(\cdot), g_{h}(\cdot)$, and weight matrices $\mathbf{W}_{h \hat{y}}$, $\mathbf{W}_{h h}$, and $\mathbf{W}_{x h}$ (typically, these contain bias terms as well).\\
+Note that \textbf{equivalence with a FFNN} is given by setting all elements of $\mathbf{W}_{h h}$ to zero!
 
 \end{frame}
-\begin{frame}{Recurrent layers\footnote{Copyright belongs to \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}}
-Let's consider a very basic example of a recurrent layer and just look at the computations at a single recurrent node. The output from the first vector in the sequence $\mathbf{x}_1$ is $a(m_1+b)$ where
-\[
-m_1=\sum^d_{i=1}x_{i,1}w_i.
-\]
-The output $a(m_1+b)$ moves to the next layer, but the information $m_1$ returns back into the same layer.
-\begin{figure}
-\centering
-\includegraphics[width=0.5\textwidth]{Images/rnn.png}
-\end{figure}
-\end{frame}
-\begin{frame}{Recurrent layers\footnote{Copyright belongs to \url{https://www.ibm.com/cloud/learn/recurrent-neural-networks}}} The output from the second input $\mathbf{x}_2$ is $a(m_2+b)$ where
-\[
-m_2=\sum^d_{i=1}x_{2,1}w_i+m_1+b.
-\]
-So now the output $a(m_2+b)$ contains information from the previous vector in the sequence! And this procedure is repeated for the \textbf{entire sequence} and for all nodes.
-\begin{figure}
-\centering
-\includegraphics[width=0.5\textwidth]{Images/rnn.png}
-\end{figure}
-\end{frame}
-
+ 
 \begin{frame}{Some points...}
 \begin{itemize}
+\item Weights in an RNN layer are estimated using ``\textbf{backpropogation through time}'' - a slight extension of backpropogation which accounts for the shared parameters across time
+\item RNN layers can be stacked on top of each other - we can choose for $\texttt{Keras}$ to output the entire series of vectors in a hidden layer $(\mathbf{h}_t)^T_{t=1}$ or just one vector, e.g.,  $\mathbf{h}_T$
 \item These simple layers can be implemented using $\texttt{layer\_simple\_rnn}$
-\item Generally these are not used anymore due to numerical stability problems. People now use \textbf{Long Short-Term Memory} layers\footnote{S. Hochreiter; J. Schmidhuber (1997). "Long short-term memory". Neural Computation. 9 (8): 1735–1780.}, implementable by $\texttt{layer\_lstm}$.
-\item The intuition is the same, but these layers have ``forget gates" which allow them to forget \textbf{useless information} and avoids numerical instability, i.e., vanishing/exploding gradients
+\item Input into $\texttt{Keras}$ is a tensor with axes $[n,T,p]$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{LSTMs}
+\begin{itemize}
+\item Generally simple RNNs aren't used in practice now due to the so-called vanishing/exploding problem. Diminishing time series dependence leads to exponentially smaller weights for long time series.
+\item Not all information from the past needs to be remembered! Some RNNs add ``\textbf{gates}'' that selectively allows information from the past to influence the future state. These gates retain information for later and have their own internal memory.
+\item One of the most famous type are \textbf{Long Short-Term Memory} networks\footnote{S. Hochreiter; J. Schmidhuber (1997). ''Long short-term memory''. Neural Computation. 9 (8): 1735–1780.}, implementable by $\texttt{layer\_lstm}$.
 \end{itemize}
 
 \end{frame}
-\begin{frame}{Some points...}
+\begin{frame}{LSTMs}
+Consider the basic one-layered LSTM:
+
+$$
+\begin{gathered}
+\text { Output: } \quad \mathbf{y}_{t}=g_{o}\left(\mathbf{V h}_{t}\right) \\
+\text { Hidden State: } \quad \mathbf{h}_{t}=\tanh \left(\mathbf{c}_{t}\right) \odot \mathbf{o} \\
+\text { Internal Memory: } \quad \mathbf{c}_{t}=\mathbf{c}_{t-1} \odot \mathbf{f}+\mathbf{g} \odot \mathbf{i} \\
+\text { Candidate Hidden State: } \quad \mathbf{g}=\tanh \left(\mathbf{U}^{g} \mathbf{x}_{t}+\mathbf{W}^{g} \mathbf{h}_{t-1}\right) \\
+\text { Output Gate: } \quad \mathbf{o}=g\left(\mathbf{U}^{o} \mathbf{x}_{t}+\mathbf{W}^{o} \mathbf{h}_{t-1}\right) \\
+\text { Forget Gate: } \quad \mathbf{f}=g\left(\mathbf{U}^{f} \mathbf{x}_{t}+\mathbf{W}^{f} \mathbf{h}_{t-1}\right) \\
+\text { Input Gate: } \quad \mathbf{i}=g\left(\mathbf{U}^{i} \mathbf{x}_{t}+\mathbf{W}^{i} \mathbf{h}_{t-1}\right)
+\end{gathered}
+$$
+
+where $g(\cdot)$ is a sigmoid function.
+\end{frame}
+
+\begin{frame}{LSTMs}
+\begin{figure}
+\includegraphics[width=0.5\linewidth]{Images/LSTM_Cell.png}
+\end{figure}
 \begin{itemize}
-\item We considered a dense ``vanilla" recurrent layer. We can have recurrent convolutional layers instead (see e.g., $\texttt{layer\_conv\_lstm\_2d}$), which captures temporal structure within sequences of images
-\item The introduction of a recurrent layer means that the NN is no longer ``feed-forward"; unlike like the previous layers, computations for recurrent layers \textcolor{red}{cannot be done in parallel}. This makes training more \textcolor{red}{computationally demanding} and not suitable for laptop-based work. I've not included an explanation of their implementation in $\texttt{Keras}$, but I can provide \textbf{help/code on request}.
+\item Forget gates  $\mathbf{f}$ decide what information to \textbf{forget} from the previous memory state.
+\item Input gates $\mathbf{i}$ decide which pieces of new information $\mathbf{g}$ to store in the current memory state 
+\item Output gates $\mathbf{o}$ control which pieces of information in the current memory state to output. 
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}{Final points...}
+\begin{itemize}
+\item You don't need to really understand the structure for LSTMs; just apply the model!
+\item We considered a dense ``vanilla'' recurrent layer. We can have recurrent convolutional layers instead (see e.g., $\texttt{layer\_conv\_lstm\_2d}$), which captures temporal structure within sequences of images
 \end{itemize}
 \end{frame}
 

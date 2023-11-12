@@ -1,7 +1,7 @@
 ---
 title: "Installation"
 author: "Jordan Richards"
-date: "2023-01-18"
+date: "2023-11-12"
 output: html_document
 ---
 
@@ -24,8 +24,10 @@ To do so, update to the latest versions of R and Rstudio and run:
     install.packages("remotes") 
     remotes::install_github("rstudio/tensorflow") 
     remotes::install_github("rstudio/keras") 
-    reticulate::install_miniconda() 
-    tensorflow::install_tensorflow() 
+    reticulate::install_miniconda(force=T) 
+    tf_version="2.11.0" 
+
+    tensorflow::install_tensorflow(version = tf_version) 
     keras::install_keras()
     
     keras::is_keras_available() #Check if keras is available
@@ -38,23 +40,27 @@ This should work for Windows 10 and Mac OS (even with M1 processing chips). If y
     remotes::install_github("rstudio/tensorflow") 
     remotes::install_github("rstudio/keras") 
     
-    version <- "3.8.10"
-    #Create a virtual envionment 'myenv' with Python 3.8.10. Install tensorflow  within this environment.
+    py_version <- "3.8.10"
+    #Create a virtual environment 'myenv' with Python 3.8.10. Install tensorflow  within this environment.
     reticulate::virtualenv_create(envname = 'myenv',
                                   python="/usr/local/bin/python3",
-                                  version=version)
+                                  version=py_version)
     
     path<- paste0(reticulate::virtualenv_root(),"/myenv/bin/python")
     Sys.setenv(RETICULATE_PYTHON = path) #Set Python interpreter to that installed in myenv
    
-    tf_version="2.11.0" 
+    tf_version <- "2.11.0" 
     reticulate::use_virtualenv("myenv", required = T)
-    reticulate::virtualenv_install("myenv",  envname="myenv",version=tf_version,
-             packages = "tensorflow") #Install latest version of tensorflow in virtual environment
-    keras::install_keras(method = c("virtualenv"), envname = "myenv",version=tf_version) #Install keras
-    
-    keras::is_keras_available() #Check if keras is available
-```
+    tensorflow::install_tensorflow(method="virtualenv", 
+                                   envname="myenv",
+                                   version=tf_version) #Install version of TensorFlow in virtual environment
+    keras::install_keras(method = c("virtualenv"), 
+                         envname = "myenv",
+                         version=tf_version) #Install Keras
+
+    print(keras::is_keras_available()) #Check if Keras is available
+
+    ```
     
 to install keras in the virtual environment "myenv". Note that this will not work on windows.
     

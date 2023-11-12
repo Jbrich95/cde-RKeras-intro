@@ -64,7 +64,7 @@ The course also requires the following R packages:
     
 ```{r, eval = FALSE}
     install.packages(c("raster", "pbapply", "BiocManager","remotes"))
-   BiocManager::install("EBImage")
+    BiocManager::install("EBImage")
 
 ```
 
@@ -79,10 +79,7 @@ If you would like to follow along with the graph neural networks part of the cou
 To check if "spektral" is installed properly, try running: 
 
 ```{r, eval = FALSE}
-   spk <<- reticulate::import("spektral", delay_load = list(
-  priority = 10,
-  environment = "myenv"
-))
+   spk <<- reticulate::import("spektral")
 
 ```
 

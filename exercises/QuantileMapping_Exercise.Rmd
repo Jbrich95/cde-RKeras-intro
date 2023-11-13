@@ -1,0 +1,50 @@
+---
+title: "European rainfall quantile mapping exercise"
+author: "Jordan Richards"
+date: "`r Sys.Date()`"
+output: beamer_presentation
+---
+  
+  # Dataset
+  
+* The data consists of:
+  * hourly summer rainfall (mm) over 500 grid-boxes (0.25deg by 0.25deg) across Western Europe (2021-2022).
+  * we will treat grid-box as point location.
+* collection of 11 relevant meteorological and orographical covariates at each site.
+* Obtained from ERA5:
+  * https://cds.climate.copernicus.eu/cdsapp#!/dataset/reanalysis-era5-single-levels
+  * we will use a GNN model to map high quantiles of hourly rainfall, as well as estimate the probability of extreme rainfall at a single site.
+
+# Load data
+
+```{r,eval=T}
+load("../Data/EuroRain.Rdata")
+dim(Y)
+dim(X)
+```
+
+# Predictors
+
+* The predictors are:
+  * meteorological: air temperature at 2m, mean sea level pressure, surface pressure, ozone, 10m u- and v-wind speed components
+  * orographical: angle, isotropy, land-sea mask, slope, standard deviation
+  
+```{r,eval=T}
+print(cov_names)
+```
+# Data normalisation
+
+* We first scale the input data to improve the numerical stability of training
+
+```{r, eval=TRUE}
+#Normalise inputs
+X_scaled <- X
+for(i in 1:dim(X)[3]){
+  temp <- X[,,i]
+  m <- mean( temp,na.rm=T)
+  s <- sd( temp,na.rm=T)
+  temp <- ( temp-m)/s
+  X_scaled[,,i] <- temp
+}
+
+```

@@ -202,7 +202,6 @@ str(tensorData)
 
 # Response data
 
-```{r}
 Y.train.inds <- tensorData$y.train.tsInds
 Y.valid.inds <- tensorData$y.test.tsInds
 Y.train.rnn_MDB <- rainfallAnomaly[Y.train.inds, 3]

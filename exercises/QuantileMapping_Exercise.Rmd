@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: beamer_presentation
 ---
   
-  # Dataset
+# Dataset
   
 * The data consists of:
   * hourly summer rainfall (mm) over 500 grid-boxes (0.25deg by 0.25deg) across Western Europe (2021-2022).
@@ -30,7 +30,8 @@ dim(X)
   * orographical: angle, isotropy, land-sea mask, slope, standard deviation
   
 ```{r,eval=T}
-print(cov_names)
+print(cov_names[1:5])
+print(cov_names[5:11])
 ```
 # Data normalisation
 
@@ -48,3 +49,370 @@ for(i in 1:dim(X)[3]){
 }
 
 ```
+
+# Get some validation data
+
+```{r, eval=TRUE}
+#Normalise inputs
+set.seed(1)
+validation.inds <- sample(1:nrow(Y), nrow(Y)/5) #20%
+X.valid <- X_scaled[validation.inds,,]
+Y.valid <-  Y[validation.inds,]
+X.train <- X_scaled[-validation.inds,,]
+Y.train <-  Y[-validation.inds,]
+
+```
+
+# Response
+
+* We focus on estimating the $90\%$ quantile of $Y|\mathbf{X}$, which is the hourly rainfall. This can be done using the tilted loss.
+
+```{r, eval=TRUE}
+quant.level<-0.9
+
+tilted_loss <- function( y_true, y_pred) {
+    K <- backend()
+    
+  
+    error = y_true - y_pred
+    return(
+      100*K$mean(K$maximum(quant.level*error, 
+                            (quant.level-1)*error))
+      )
+  }
+  
+```
+
+# Building a graph
+
+* We can build a graph for our data using the location coordinates. The graph structure will be stored in an adjacency matrix. This matrix will have entries 1 if sites are within 50km of each other.
+
+```{r, eval=TRUE}
+dist<-fields::rdist.earth(coords,miles=F)
+cut.off.dist <- 50
+A <- dist
+A[dist>cut.off.dist]=0; A[dist <= cut.off.dist]=1
+diag(A)=0
+```
+
+# Building a graph
+
+```{r, eval=TRUE, echo = FALSE}
+plot(coords,xlab="",ylab="",ylim=c(42,63),xlim=range(-11,6),pch=20,asp=1/1.6)
+for(i in 1:500) for(j in 1:500) if(A[i,j]>0) points(coords[c(i,j),],type="l",col="red")
+maps::map("world",add=T)
+```
+
+# Graph layers
+
+```{r, eval=TRUE, results = 'asis'}
+spk <<- reticulate::import("spektral")
+print(names(spk$layers)[1:9])
+```
+
+We can create a custom Keras layer with an embedded spektral layer. Here we used a graph convolutional layer with trainable skip connection. 
+
+See also https://graphneural.network/layers/convolution/
+
+# Custom graph layers
+
+```{r, eval=TRUE, echo=F}
+layer_graph_conv <- function(
+     object,
+     channels,
+     activation = NULL,
+     use_bias = TRUE,
+     kernel_initializer = 'glorot_uniform',
+     bias_initializer = 'zeros',
+     kernel_regularizer = NULL,
+     bias_regularizer = NULL,
+     activity_regularizer = NULL,
+     kernel_constraint = NULL,
+     bias_constraint = NULL,
+     name=NULL,
+     ...)
+{
+  args <- list(channels = as.integer(channels),
+               activation = activation,
+               use_bias = use_bias,
+               kernel_initializer = kernel_initializer,
+               bias_initializer = bias_initializer,
+               kernel_regularizer = kernel_regularizer,
+               bias_regularizer = bias_regularizer,
+               activity_regularizer = activity_regularizer,
+               kernel_constraint = kernel_constraint,
+               bias_constraint = bias_constraint,
+               name=name
+  )
+  keras::create_layer(spk$layers$GCSConv, object, args)
+
+}
+```
+
+```{r, eval=FALSE}
+layer_graph_conv <- function(
+     object,
+     channels,
+     activation = NULL,
+     use_bias = TRUE,
+     kernel_initializer = 'glorot_uniform',
+     bias_initializer = 'zeros',
+     kernel_regularizer = NULL,
+     bias_regularizer = NULL,
+     activity_regularizer = NULL,
+     kernel_constraint = NULL,
+     bias_constraint = NULL,
+     name=NULL,
+     ...)
+{... #REPLACE WITH FOLLOWING}
+```
+
+# Custom graph layers (2)
+
+```{r, eval=FALSE}
+
+  args <- list(channels = as.integer(channels),
+           activation = activation,
+           use_bias = use_bias,
+           kernel_initializer = kernel_initializer,
+           bias_initializer = bias_initializer,
+           kernel_regularizer = kernel_regularizer,
+           bias_regularizer = bias_regularizer,
+           activity_regularizer = activity_regularizer,
+           kernel_constraint = kernel_constraint,
+           bias_constraint = bias_constraint,
+           name=name
+  )
+  keras::create_layer(spk$layers$GCSConv, object, args)
+
+
+```
+
+# Keras GNN
+
+We can now build a Keras model as we have done previously, just by swapping layer_dense (or equivalent) with layer_graph_conv. 
+
+However, we need an extra input to the graph layer that includes information about the graph itself. This extra input depends on the type of layer. For GCGSconv, we need the modified Laplacian.
+
+```{r, eval=T}
+ML<-spk$utils$convolution$normalized_adjacency(A)
+```
+
+# Keras GNN
+
+```{r, eval=T}
+library(keras)
+
+input.lay <- layer_input(shape = dim(X)[2:3])
+
+hidden.lay1<- list(input.lay, ML) %>% 
+  layer_graph_conv(channels = 32,   activation = "relu") 
+
+hidden.lay2<- list(hidden.lay1, ML) %>% 
+  layer_graph_conv(channels = 32,   activation = "relu") 
+
+# We collapse the feature vector at a vertex into a single value, using a DNN
+output.lay <- hidden.lay2 %>% layer_dense(units=1, activation = 'linear')
+```
+
+# Keras GNN
+
+```{r, eval=T}
+library(keras)
+# I want strictly positive quantiles only, 
+# so lets apply an exponential transformation
+output.lay <- output.lay %>%
+  layer_activation( activation = 'exponential')
+
+ model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+```
+
+# Compiling
+
+We will compile with the adam optimiser and our quantile loss function
+
+```{r,eval=T}
+model %>% compile(
+  loss = tilted_loss,
+  optimizer = "adam"
+)
+```
+
+# Fitting the model
+
+I'll also shuffle the training data to break up any temporal dependence. This will help the training procedure.
+
+```{r, eval = T}
+history <- model %>% fit(
+  x = X.train, y = Y.train,
+  epochs = 250, batch_size = 128, 
+  validation_data = list(
+    X.valid, Y.valid),
+  shuffle=T,
+  callbacks =  list(
+    callback_model_checkpoint(filepath = "model_weights",
+      verbose=0, monitor="val_loss",
+      save_best_only = TRUE, save_weights_only = TRUE),
+      callback_early_stopping(monitor = "val_loss", 
+                          min_delta = 0, patience = 10))
+)
+model <- load_model_weights_tf(model,
+                               filepath="model_weights")
+```
+
+# Fitting the model
+* Check for overfitting
+
+```{r, eval=TRUE, fig.height = 3, fig.width = 7}
+
+plot(history)
+
+```
+
+# Predictions
+
+```{r, eval=TRUE}
+qhat <- model %>% predict(X_scaled)
+
+mean(qhat[,,1] > Y)
+
+print("Validation loss")
+```
+
+# Weighted adjacency
+
+* Let's try weighting the adjacency matrix, and see if that provides better predictions. We will use an exponential weighting kernel with range 100.
+
+```{r, eval=TRUE}
+A2 <- exp(-dist/100)
+diag(A2) <- 0
+A2[dist > cut.off.dist] <- 0
+ML2<-spk$utils$convolution$normalized_adjacency(A2)
+
+```
+
+# New model
+
+```{r, eval=T}
+library(keras)
+input.lay2 <- layer_input(shape = dim(X)[2:3])
+hidden.lay21<- list(input.lay2, ML2) %>% 
+  layer_graph_conv(channels = 32,   activation = "relu") 
+hidden.lay22<- list(hidden.lay21, ML2) %>% 
+  layer_graph_conv(channels = 32,   activation = "relu") 
+hidden.lay23 <- hidden.lay22 %>% layer_dense(units=1, activation = 'linear')
+
+output.lay2 <- hidden.lay23 %>%
+  layer_activation( activation = 'exponential')
+
+ model2 <- keras_model(
+    inputs = c(input.lay2), 
+    outputs = c(output.lay2)
+  )
+```
+
+# New model fitting
+
+```{r, eval=T}
+model2 %>% compile(
+  loss = tilted_loss,
+  optimizer = "adam"
+)
+```
+
+```{r,eval=T}
+history2 <- model2 %>% fit(
+  x = X.train, y = Y.train,
+  epochs = 250, batch_size = 128, 
+  validation_data = list(
+    X.valid, Y.valid),
+  shuffle=T,
+ callbacks =  list(
+    callback_model_checkpoint(filepath = "model_weights",
+      verbose=0, monitor="val_loss",
+      save_best_only = TRUE, save_weights_only = TRUE),
+      callback_early_stopping(monitor = "val_loss", 
+                          min_delta = 0, patience = 10)),
+    verbose=0
+)
+model2 <- load_model_weights_tf(model2,
+                               filepath="model_weights")
+```
+
+# Comparison
+
+```{r, eval=TRUE}
+qhat2 <- model2 %>% predict(X_scaled)
+
+mean(qhat2[,,1]>= Y)
+```
+
+```{r, eval=TRUE}
+
+print(tilted_loss(Y.valid,predict(model,X.valid)[,,1]))
+print(tilted_loss(Y.valid,predict(model2,X.valid)[,,1]))
+```
+Lower validation loss when using the weighted A matrix.
+
+# Predictions
+* Check predictions
+
+```{r, eval=TRUE, echo = F}
+site.ind <-80
+par(mfrow=c(1,2))
+plot(Y[,site.ind], 
+     xlab = "Time",
+     ylab = "Hourly rainfall (mm)", 
+     pch = 20, 
+     col = adjustcolor("black", 0.2))
+points(qhat2[,site.ind,],col="red",type="l")
+plot(maps::map("world",plot=F),type="l",xlab="",ylab="",ylim=c(42,63),xlim=range(-11,6),pch=20,asp=1/1.6)
+points(coords[site.ind,1],coords[site.ind,2],col="red",pch=3)
+```
+
+# Predictions
+* Check predictions
+
+```{r, eval=TRUE, echo =F}
+site.ind <-41
+par(mfrow=c(1,2))
+plot(Y[,site.ind], 
+     xlab = "Time",
+     ylab = "Hourly rainfall (mm)", 
+     pch = 20, 
+     col = adjustcolor("black", 0.2))
+points(qhat2[,site.ind,],col="red",type="l")
+plot(maps::map("world",plot=F),type="l",xlab="",ylab="",ylim=c(42,63),xlim=range(-11,6),pch=20,asp=1/1.6)
+points(coords[site.ind,1],coords[site.ind,2],col="red",pch=3)
+```
+
+# Prediction maps
+
+```{r, eval=TRUE, echo =F}
+par(mfrow=c(1,2))
+time.ind <-2663
+plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),pch=20,asp=1/1.6,
+     main = "Hourly rainfall (mm)", xlab=times[time.ind])
+for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(Y[time.ind,])[i]],pch=20)
+plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),pch=20,asp=1/1.6,
+      main = "Quantile (mm)", xlab=times[time.ind])
+for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(qhat2[time.ind,,])[i]],pch=20)
+```
+
+
+# Prediction maps
+
+```{r, eval=TRUE, echo =F}
+par(mfrow=c(1,2))
+time.ind <-4000
+plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),pch=20,asp=1/1.6,
+     main = "Hourly rainfall (mm)", xlab=times[time.ind])
+for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(Y[time.ind,])[i]],pch=20)
+plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),pch=20,asp=1/1.6,
+      main = "Quantile (mm)", xlab=times[time.ind])
+for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(qhat2[time.ind,,])[i]],pch=20)
+```
+

@@ -222,7 +222,7 @@ Important notes:
 * the first dimension of both the input tensors is equal to the batch size.
 * there is very little documentation on how to write custom loss functions.
 * try to use the Keras backend functions as much as possible and avoid using R functions (they may not work).
-* if a Keras function has the “axis” argument, it is asking you which dimension you want to “apply”” the function to.
+* if a Keras function has the “axis” argument, it is asking you which dimension you want to “apply” the function to.
 
 # Custom loss functions
 

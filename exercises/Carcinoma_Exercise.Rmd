@@ -26,19 +26,18 @@ We will be using some functions and the images from Dan's github directory, http
 ```{r,eval=T}
 remotes::install_github("dpagendam/deepLearningRshort")
 
-library(pbapply)
-library(keras)
-library(raster)
-library(deepLearningRshort)
-library(EBImage)
+suppressPackageStartupMessages( library(pbapply))
+suppressPackageStartupMessages(library(keras))
+suppressPackageStartupMessages(library(raster))
+suppressPackageStartupMessages(library(deepLearningRshort))
+suppressPackageStartupMessages(library(EBImage))
 ```
 
 
 # Load dataset
 
 ```{r, eval=TRUE}
-width <- 50
-height <- 50
+width <- 50; height <- 50
 greyScale <- FALSE
 packageDataDir = system.file("extdata", 
                  package="deepLearningRshort")
@@ -59,14 +58,16 @@ validationData <- extract_feature(
 * Each channel represents an intensity on an RGB scale
 
 ```{r, eval=TRUE}
-if(greyScale) numInputChannels <- 1 else  numInputChannels <- 3
+if(greyScale){ numInputChannels <- 1 
+}else{numInputChannels <- 3}
 train_array <- t(trainData$X)
 dim(train_array) <- c(width, height, numInputChannels, 
                       nrow(trainData$X))
 train_array <- aperm(train_array, c(4,1,2,3))
   
 validation_array <- t(validationData$X)
-dim(validation_array) <- c(width, height, numInputChannels, 
+dim(validation_array) <- c(width, height, 
+                           numInputChannels, 
                      nrow(validationData$X))
 validation_array <- aperm(validation_array, c(4,1,2,3))
 ```
@@ -187,7 +188,8 @@ Let's train the model
 history <- model %>% fit(
   x = train_array, y = as.numeric(trainData$y),
   epochs = 50, batch_size = 32, validation_data =
-    list(validation_array,as.numeric(validationData$y))
+    list(validation_array,as.numeric(validationData$y)),
+  verbose=0
 )
 ```
 
@@ -273,6 +275,7 @@ output.lay <- model %>% layer_dense(units = 1,
 ```{r, eval = T}
 history <- model %>% fit(
   x = train_array, y = as.numeric(trainData$y),
+  verbose=0,
   callback = list(checkpoint,
       callback_reduce_lr_on_plateau(
         monitor = "val_loss",

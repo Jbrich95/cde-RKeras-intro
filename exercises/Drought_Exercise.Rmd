@@ -91,6 +91,7 @@ eof2 <- EOFsToRaster(matrix(EOFList$rasterEOFs$EOFs[, 2], ncol = 1),
 extent(eof2) <- extent(anomalyRasterList[[1]])
 plot(eof2, main = "2nd EOF", xlab = "Longitude", ylab = "Latitude")
 ```
+
 # Plot EOFs
 
 ```{r,eval=T,echo=F}
@@ -202,6 +203,7 @@ str(tensorData)
 
 # Response data
 
+```{r}
 Y.train.inds <- tensorData$y.train.tsInds
 Y.valid.inds <- tensorData$y.test.tsInds
 Y.train.rnn_MDB <- rainfallAnomaly[Y.train.inds, 3]
@@ -296,7 +298,7 @@ Let's train the model with early stopping and a checkpoint
 
 ```{r, eval = T}
 history <- model %>% fit(
-  x = X.rnn.train, y = Y.rnn.train, 
+  x = X.rnn.train, y = Y.rnn.train, verbose=0,
   batch_size = batchSize, epochs = 200, shuffle = FALSE, 
   validation_data = list(X.rnn.valid, Y.rnn.valid),
   callbacks = list(

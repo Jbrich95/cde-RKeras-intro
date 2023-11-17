@@ -1,5 +1,5 @@
 ---
-title: "European rainfall quantile mapping exercise"
+title: "European rainfall GNN exercise"
 author: "Jordan Richards"
 date: "`r Sys.Date()`"
 output: beamer_presentation
@@ -85,11 +85,11 @@ tilted_loss <- function( y_true, y_pred) {
 
 # Building a graph
 
-* We can build a graph for our data using the location coordinates. The graph structure will be stored in an adjacency matrix. This matrix will have entries 1 if sites are within 50km of each other.
+* We can build a graph for our data using the location coordinates. The graph structure will be stored in an adjacency matrix. This matrix will have entries 1 if sites are within 75km of each other.
 
 ```{r, eval=TRUE}
 dist<-fields::rdist.earth(coords,miles=F)
-cut.off.dist <- 50
+cut.off.dist <- 75
 A <- dist
 A[dist>cut.off.dist]=0; A[dist <= cut.off.dist]=1
 diag(A)=0
@@ -192,7 +192,7 @@ layer_graph_conv <- function(
 
 We can now build a Keras model as we have done previously, just by swapping layer_dense (or equivalent) with layer_graph_conv. 
 
-However, we need an extra input to the graph layer that includes information about the graph itself. This extra input depends on the type of layer. For GCGSconv, we need the modified Laplacian.
+However, we need an extra input to the graph layer that includes information about the graph itself. This extra input depends on the type of layer. For GCGSconv, we need the normalised adjacency matrix.
 
 ```{r, eval=T}
 ML<-spk$utils$convolution$normalized_adjacency(A)
@@ -211,8 +211,7 @@ hidden.lay1<- list(input.lay, ML) %>%
 hidden.lay2<- list(hidden.lay1, ML) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
 
-# We collapse the feature vector at a vertex into a single value, using a DNN
-output.lay <- hidden.lay2 %>% layer_dense(units=1, activation = 'linear')
+
 ```
 
 # Keras GNN
@@ -221,8 +220,8 @@ output.lay <- hidden.lay2 %>% layer_dense(units=1, activation = 'linear')
 library(keras)
 # I want strictly positive quantiles only, 
 # so lets apply an exponential transformation
-output.lay <- output.lay %>%
-  layer_activation( activation = 'exponential')
+output.lay<- hidden.lay2 %>% 
+  layer_dense(units = 1,   activation = "exponential") 
 
  model <- keras_model(
     inputs = c(input.lay), 
@@ -247,17 +246,17 @@ I'll also shuffle the training data to break up any temporal dependence. This wi
 
 ```{r, eval = T}
 history <- model %>% fit(
-  x = X.train, y = Y.train,
-  epochs = 250, batch_size = 128, 
+  x = X.train, y = Y.train, shuffle=T,
+  epochs = 200, batch_size = 32, 
   validation_data = list(
     X.valid, Y.valid),
-  shuffle=T,
   callbacks =  list(
     callback_model_checkpoint(filepath = "model_weights",
       verbose=0, monitor="val_loss",
       save_best_only = TRUE, save_weights_only = TRUE),
       callback_early_stopping(monitor = "val_loss", 
-                          min_delta = 0, patience = 10))
+                          min_delta = 0, patience = 15)),
+  verbose=0
 )
 model <- load_model_weights_tf(model,
                                filepath="model_weights")
@@ -279,15 +278,14 @@ qhat <- model %>% predict(X_scaled)
 
 mean(qhat[,,1] > Y)
 
-print("Validation loss")
 ```
 
 # Weighted adjacency
 
-* Let's try weighting the adjacency matrix, and see if that provides better predictions. We will use an exponential weighting kernel with range 100.
+* Let's try weighting the adjacency matrix, and see if that provides better predictions. We will use a Gaussian weighting kernel with range 50
 
 ```{r, eval=TRUE}
-A2 <- exp(-dist/100)
+A2 <- exp(-(dist/50)^2)
 diag(A2) <- 0
 A2[dist > cut.off.dist] <- 0
 ML2<-spk$utils$convolution$normalized_adjacency(A2)
@@ -303,10 +301,9 @@ hidden.lay21<- list(input.lay2, ML2) %>%
   layer_graph_conv(channels = 32,   activation = "relu") 
 hidden.lay22<- list(hidden.lay21, ML2) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
-hidden.lay23 <- hidden.lay22 %>% layer_dense(units=1, activation = 'linear')
+output.lay2 <- hidden.lay22 %>% 
+  layer_dense(units=1, activation = 'exponential')
 
-output.lay2 <- hidden.lay23 %>%
-  layer_activation( activation = 'exponential')
 
  model2 <- keras_model(
     inputs = c(input.lay2), 
@@ -323,23 +320,33 @@ model2 %>% compile(
 )
 ```
 
+# New model fitting
+
 ```{r,eval=T}
 history2 <- model2 %>% fit(
-  x = X.train, y = Y.train,
-  epochs = 250, batch_size = 128, 
+  x = X.train, y = Y.train, shuffle=T,
+  epochs = 200, batch_size = 32, 
   validation_data = list(
     X.valid, Y.valid),
-  shuffle=T,
  callbacks =  list(
     callback_model_checkpoint(filepath = "model_weights",
       verbose=0, monitor="val_loss",
       save_best_only = TRUE, save_weights_only = TRUE),
       callback_early_stopping(monitor = "val_loss", 
-                          min_delta = 0, patience = 10)),
-    verbose=0
+                          min_delta = 0, patience = 15)),
+ verbose=0
 )
 model2 <- load_model_weights_tf(model2,
                                filepath="model_weights")
+```
+
+# Fitting the model
+* Check for overfitting
+
+```{r, eval=TRUE, fig.height = 3, fig.width = 7}
+
+plot(history2)
+
 ```
 
 # Comparison
@@ -393,7 +400,7 @@ points(coords[site.ind,1],coords[site.ind,2],col="red",pch=3)
 
 ```{r, eval=TRUE, echo =F}
 par(mfrow=c(1,2))
-time.ind <-2663
+time.ind <-100
 plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),pch=20,asp=1/1.6,
      main = "Hourly rainfall (mm)", xlab=times[time.ind])
 for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(Y[time.ind,])[i]],pch=20)

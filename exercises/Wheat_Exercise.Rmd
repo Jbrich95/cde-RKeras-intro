@@ -156,7 +156,8 @@ history <- model %>% fit(
   x = trainData_X_scaled, y = trainData_Y,
   epochs = 30, batch_size = 32, 
   validation_data = list(
-    validationData_X_scaled, validationData_Y)
+    validationData_X_scaled, validationData_Y),
+  verbose=0
 )
 ```
 
@@ -305,7 +306,8 @@ history <- model2 %>% fit(
   epochs = 50, batch_size = 32, 
   validation_data = list(
     validationData_X_scaled, validationData_Y),
-  callbacks = callback
+  callbacks = callback,
+   verbose=0
 )
 ```
 

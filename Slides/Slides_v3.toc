@@ -4,7 +4,7 @@
 \beamer@subsectionintoc {2}{2}{Statistics vs deep learning}{13}{0}{2}
 \beamer@subsectionintoc {2}{3}{Basics of neural networks}{23}{0}{2}
 \beamer@subsectionintoc {2}{4}{Backpropogation}{33}{0}{2}
-\beamer@sectionintoc {3}{Implementation and regularisation}{41}{0}{3}
-\beamer@sectionintoc {4}{Convolutional neural networks}{55}{0}{4}
-\beamer@sectionintoc {5}{Recurrent neural networks}{83}{0}{5}
-\beamer@sectionintoc {6}{Graph neural networks}{94}{0}{6}
+\beamer@sectionintoc {3}{Implementation and regularisation}{44}{0}{3}
+\beamer@sectionintoc {4}{Convolutional neural networks}{58}{0}{4}
+\beamer@sectionintoc {5}{Recurrent neural networks}{86}{0}{5}
+\beamer@sectionintoc {6}{Graph neural networks}{97}{0}{6}

@@ -5,6 +5,80 @@
 \usepackage{bibunits}  
 \usepackage{xmpmulti}
 \usepackage{animate}
+\usepackage{tikz}
+
+
+\usetikzlibrary{shapes.multipart}
+
+\tikzset{
+  pics/graphstructure/.style args={#1,#2,#3,#4}{
+     code={
+        \node[main] (1) {$#1$}; 
+		\node[main] (2) [above right of=1] {$#2$}; 
+		\node[main] (3) [below right of=1] {$#4$}; 
+		\node[main] (4) [below of=1] {$#3$}; 
+		\draw (1) -- (2); 
+		\draw (1) -- (3);
+		\draw (1) -- (4);
+		\draw (2) -- (3); 
+		\draw (2) -- (4); 
+		\draw (3) -- (4);
+     }
+  }
+}
+
+
+\tikzset{
+  pics/graphstructurecoloured/.style args={#1,#2,#3,#4}{
+     code={
+       \node[main, fill=orange] (1) {$#1$}; 
+		\node[main, fill=blue] (2) [above right of=1] {$#2$}; 
+		\node[main, fill=orange] (3) [below right of=1] {$#3$}; 
+		\node[main, fill=orange] (4) [below of=1] {$#4$}; 
+		\draw (1) -- (2); 
+		\draw (1) -- (3);
+		\draw (1) -- (4);
+		\draw (2) -- (3); 
+		\draw (2) -- (4); 
+		\draw (3) -- (4);
+     }
+  }
+}
+
+
+\tikzset{
+  pics/pooledgraphstructure/.style args={#1,#2}{
+     code={
+       \node[main, fill=orange] (1) at (0.75, -0.75) {$#1$}; 
+		\node[main, fill=blue] (2) at (1.5, 1.25) {$#2$};  
+		\draw (1) -- (2); 
+     }
+  }
+}
+
+\tikzset{
+  pics/pooledgraphfeatures/.style args={#1,#2}{
+     code={
+		\draw[step=1cm] (0,-1) grid (1,1);
+		\node at (0.5, 0.5) {$#1$};
+		\node at (0.5, -0.5) {$#2$};
+     }
+  }
+}
+
+\usetikzlibrary{positioning}
+
+\usetikzlibrary{calc,arrows.meta,positioning}
+\newcommand{\mySumn}[2]{
+    \node[mySumbk,fill=white] (#1) at (#2) {};
+        \foreach \angle/\maop in {
+        90/+,
+        180/-
+        }{
+   \node[anchor=center, font=\tiny] at ($(#1)+(\angle:.45em)$) {$\maop$};
+}}
+
+
 
 \definecolor{beamer@blockbg}{rgb}{0.7,0.1,0.1}
 \title[cde-Rkeras-intro]{An introduction to deep learning with the R interface to Keras}
@@ -32,17 +106,17 @@ Deep extreme quantile regression:
 \item \textbf{R., J.}, Huser, R. (2022+). Regression modelling of spatiotemporal extreme U.S. wildfires via partially-interpretable neural networks. 
 \item \textbf{R., J.}, Huser, R., Bevacqua, E., Zscheischler, J. (2023). Insights into the drivers and spatio-temporal trends of extreme Mediterranean wildfires with statistical deep-learning. Artificial Intelligence for the Earth Systems, 2(4):e220095.
 \item Cisneros, D., \textbf{R., J.}, Dahal, A., Lombardo, L., Huser, R. (2023+). Deep graphical regression for jointly moderate and extreme Australian wildfires.
-\item pinnEV: R package.
-\item R., J., Huser, R. (2023+). Extreme Quantile Regression with Deep Learning. In Handbook on Statistics of Extremes.
+\item \textbf{R., J.} (2023+). pinnEV: R package.
+\item \textbf{R., J.}, Huser, R. (2023+). Extreme Quantile Regression with Deep Learning. In Handbook on Statistics of Extremes.
 \end{itemize}
 \end{frame}
-\begin{frame}{Shameless self-promotion 3}
+\begin{frame}{Shameless self-promotion 2}
 Deep inference:
 \begin{itemize}
 \item \textbf{R., J.}, Sainsbury-Dale, M., Zammit-Mangion, A., Huser, R. (2023+). Neural Bayes estimators for censored inference with peaks-over-threshold models. 
 \item Sainsbury-Dale, M., \textbf{R., J.}, Zammit-Mangion, A., Huser, R. (2023+). Neural Bayes estimators for irregular spatial data using graph neural networks.
 \item \textbf{R., J.,}, Alotaibi, N., Cisneros, D., Gong, Y., Guerrero, M. B., Redondo, P.,  Shao, X. (2023+). Modern extreme value statistics for Utopian extremes.
-\item CensoredNeuralEstimators: Julia code to complement NeuralEstimators Julia/R package.
+\item \textbf{R., J.} CensoredNeuralEstimators: Julia code to complement NeuralEstimators Julia/R package.
 \item Watch this space...
 \end{itemize}
 \end{frame}
@@ -51,7 +125,7 @@ Deep inference:
 Deep dependence:
 \begin{itemize}
 \item Shao, X., \textbf{R., J.}, Huser, R. (2023+). Deep compositional models for nonstationary extremal dependence.
-\item DeepSpat: R package
+\item DeepSpat: R package.
 \item Watch this space...
 \end{itemize}
 \end{frame}
@@ -76,7 +150,7 @@ Deep dependence:
 \vfill
 \item We give a brief overview of the \textbf{methodological} and \textbf{implementation} for deep models.
 \vfill
-\item We give some examples using $\mathrm{R}$ and Keras
+\item We give some examples using $\mathrm{R}$ and Keras.
 \vfill
 \item Specific models:
 \begin{itemize}
@@ -85,7 +159,7 @@ Deep dependence:
 \item Convolutional Neural Networks (CNNs; Image Classification)
 
 \item Recurrent Neural Networks (RNNs; Temporal Dependence, \textbf{forecasting})
-\item Graph Neural Networks (GNNs; Quantile regression, \textbf{graph-level classification})
+\item Graph Neural Networks (GNNs;  Node-level regression, graph-level classification)
 \end{itemize}
 \end{itemize}
 \end{frame}
@@ -463,12 +537,54 @@ Putting the \textbf{deep} in \textbf{deep} learning:
 An MLP with two hidden layers and one output can be written:
 $$
 \begin{gathered}
-z_{1 j}=g_1\left(\sum_{i=0}^{p} \alpha_{1 j i} x_{i}\right), \quad j=1, \ldots, J_{1}, \\
-z_{2 j^{\prime}}=g_2\left(\sum_{j=1}^{J_{1}} \alpha_{2 j^{\prime} j} z_{1 j}\right), \quad j^{\prime}=1, \ldots, J_{2}, \\
-\hat{y}=h\left(\sum_{j^{\prime}=0}^{J_{2}} \beta_{j^{\prime}} z_{2 j^{\prime}}\right).
+z^{(1)}_{j}=g^{(1)}\left(\sum_{i=0}^{p} \alpha^{(1)}_{j i} x_{i}\right), \quad j=1, \ldots, J_{1}, \\
+z^{(2)}_{j^{\prime}}=g^{(2)}\left(\sum_{j=1}^{J_{1}} \alpha^{(2)}_{j^{\prime} j} z^{(1)}_{j}\right), \quad j^{\prime}=1, \ldots, J_{2}, \\
+\hat{y}=h\left(\sum_{j^{\prime}=0}^{J_{2}} \beta_{j^{\prime}} z^{(2)}_{ j^{\prime}}\right).
 \end{gathered}
 $$
 Training follows with backpropagation in the same way as for the one-hidden layer model; the gradient vectors generalise as expected.
+\end{frame}
+\begin{frame}{Deep FFNN: Matrix notation}
+An MLP with $L$ hidden layers can be written:
+$$
+\begin{gathered}
+\mathbf{z}^{(1)}=\mathbf{g}^{(1)}\left(\mathbf{W}^{(0)}\mathbf{x}\right), \\
+\mathbf{z}^{(l)}=\mathbf{g}^{(l)}\left(\mathbf{W}^{(l)}\mathbf{z}^{(l)}\right), \quad l=1,\dots,L \\
+\hat{\mathbf{y}}=\mathbf{h}\left(\mathbf{W}^{(L)}\mathbf{z}^{(L)}\right).
+\end{gathered}
+$$
+where $\mathbf{z}^{(l)}=(z^{(l)}_{1},\dots,z^{(l)}_{J_l})$, $\mathbf{W}^{(0)}\in \mathbb{R}^{J_1 \times p}$, $\mathbf{W}^{(l)}\in \mathbb{R}^{J_l \times J_{l-1}}$.\\ Functions $\mathbf{g}^{(l)}$ and $\mathbf{h}$ are applied component-wise. Note that $\hat{\mathbf{y}}$ is a vector or a scalar.
+\end{frame}
+\begin{frame}{Full specification for conditional density estimation}
+Let's say $Y \mid \mathbf{X}=\mathbf{x} \sim \mathcal{F}(\hat{\mathbf{y}})$. Maybe $\mathcal{F}(\hat{\mathbf{y}})\sim\Gamma(\hat{y}_1,\hat{y_2})$ with shape $\hat{y}_1>0$ and scale $\hat{y}_2>0$. 
+
+Then we can build a deep Gamma regression model using an $L$-layered MLP. So
+$$
+\begin{gathered}
+\mathbf{z}^{(1)}=\mathbf{g}^{(1)}\left(\mathbf{W}^{(0)}\mathbf{x}\right), \\
+\mathbf{z}^{(l)}=\mathbf{g}^{(l)}\left(\mathbf{W}^{(l)}\mathbf{z}^{(l)}\right), \quad l=1,\dots,L \\
+\hat{\mathbf{y}}=\mathbf{h}\left(\mathbf{W}^{(L)}\mathbf{z}^{(L)}\right).
+\end{gathered}
+$$
+What should $\mathbf{h}$ be? 
+
+How do we train this model?
+\end{frame}
+\begin{frame}{Full specification for conditional density estimation}
+Let's say $Y \mid \mathbf{X}=\mathbf{x} \sim \mbox{GEV}(\hat{y}_1,\hat{y_2}, \hat{y_3})$ with location $\hat{y}_1\in\mathbb{R},$ scale $\hat{y}_2>0$ and shape $\hat{y}_3\in(0,1)$. 
+
+Then we can build a deep GEV regression model using an $L$-layered MLP. So
+$$
+\begin{gathered}
+\mathbf{z}^{(1)}=\mathbf{g}^{(1)}\left(\mathbf{W}^{(0)}\mathbf{x}\right), \\
+\mathbf{z}^{(l)}=\mathbf{g}^{(l)}\left(\mathbf{W}^{(l)}\mathbf{z}^{(l)}\right), \quad l=1,\dots,L \\
+\hat{\mathbf{y}}=\mathbf{h}\left(\mathbf{W}^{(L)}\mathbf{z}^{(L)}\right).
+\end{gathered}
+$$
+What should $\mathbf{h}$ be? 
+
+The only other difference in the MLP specification is that now $\hat{\mathbf{y}}$ has length 3.
+
 \end{frame}
 
 \section{Implementation and regularisation}
@@ -584,6 +700,11 @@ We can choose the architecture through model \textbf{testing} (not validation!).
 \end{itemize}
 \end{frame}
 \section{Convolutional neural networks}
+\begin{frame}
+\begin{center}
+\Huge Convolutional neural networks
+\end{center}
+\end{frame}
 \begin{frame}{Convolutional neural networks (CNNs)}
 \begin{itemize}
 \item One of the early success stories in multi-level neural networks occurred with so-called ``\textbf{convolutional neural networks} (CNNs)” applied to image classification (e.g., LeCun and colleagues in the 1990s).
@@ -591,11 +712,6 @@ We can choose the architecture through model \textbf{testing} (not validation!).
 \item Before we talk about convolutional networks, we review a bit about
 convolution, especially as it applies to images.
 \end{itemize}
-\end{frame}
-\begin{frame}
-\begin{center}
-\Huge Convolutional neural networks
-\end{center}
 \end{frame}
 \begin{frame}{Convolution}
 Basic Mathematical Definition:
@@ -1104,15 +1220,121 @@ where $g(\cdot)$ is a sigmoid function.
 \end{frame}
 
 \section{Graph neural networks}
-\begin{frame}
-\begin{center}
-\Huge Graph neural networks
-\end{center}
-\end{frame}
-\begin{frame}{Overview}
-
-\end{frame}
-
+%\begin{frame}
+%\begin{center}
+%\Huge Graph neural networks
+%\end{center}
+%\end{frame}
+%\begin{frame}{Graphs}
+%\begin{itemize}
+%\item A graph $G$ can be defined as $G:=(V,E)$ where $V$ is a set of nodes/vertices (numbered 1 to $d$) and $E$ is a collection of edges between nodes.
+%\item We collect information about $G$ in an \textbf{adjacency matrix} $A\in\mathbb{R}^{d \times d}$, which need not be symmetric.
+%\item The $(i,j)$-th element of $A$ is positive and non-zero if there is a connection between the $i$-th and $j$-th node. This could be equal to one, or a scalar denoting the ``strength'' of connection. 
+%\item We observe a vector of features $\mathbf{x}_i \in \mathbb{R}^p$ at each node and we can store this in a feature matrix $\mathbf{X}=(\mathbf{x}_1, \dots,\mathbf{x}_p)'\in\mathbb{R}^{d\times p}$.
+%\item We might also have a vector of edge features as well, but for simplicity we will contain all edge information in $A$.
+%\end{itemize}
+%\end{frame}
+%
+%
+%\begin{frame}{Example}
+%
+%\end{frame}
+%
+%\begin{frame}{Applications}
+%Graphical data appears in a number of applications:
+%\begin{minipage}{0.49\linewidth}
+%\begin{itemize}
+%\item Networks: social, traffic,...
+%\item NLP;
+%\item Fraud detection;
+%\item Chemistry: molecular fingerprints;
+%\item Environmental: spatial data as fully-connected graph.
+%\end{itemize}
+%\includegraphics[width=0.8\linewidth]{Images/molecule.png}
+%\end{minipage}
+%\begin{minipage}{0.49\linewidth}
+%\begin{figure}
+%\includegraphics[width=0.8\linewidth]{Images/Jeddah.jpg}
+%\end{figure}
+%\end{minipage}
+%\end{frame}
+%\begin{frame}{Applications}
+%Different types of graph learning:
+%\begin{itemize}
+%\item Node-level tasks;
+%\item Graph-level tasks;
+%\item Edge-level tasks.
+%\end{itemize} 
+%\end{frame}
+%\begin{frame}{What makes graph learning so hard?\footnote{Copyright belongs to \url{https://neptune.ai/blog/graph-neural-network-and-some-of-gnn-applications}}}
+%
+%\begin{itemize}
+%\item The layers we have are for specific modality, e.g., vector for dense, image for CNN, sequence for RNN.
+%\item The operations are defined for fixed dimension.
+%\item Consider a CNN; this is  for an image with pre-fixed dimension. Every pixel will always have the same number of neighbours!
+%\item Graphs are often more complex, with variable size and different amounts of neighbours.
+%\item Ordering in graphs does not matter. GNNs must be \textbf{permutationally-invariant}.
+%\end{itemize}
+%\begin{figure}
+%\includegraphics[width=0.5\linewidth]{Images/graph-neural-network.png}
+%\end{figure}
+%\end{frame}
+%\begin{frame}{General structure of a GNN\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+%For node-level tasks -- input a graph and output a graph.
+%\begin{figure}
+%\includegraphics[width=0.8\linewidth]{Images/GNN_structure.png}
+%\end{figure}
+%At each hidden layer, update features at nodes via a form of \textbf{message passing} and agglomerate.
+%\end{frame}
+%
+%\begin{frame}{Convolutions on a grid\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+%\begin{minipage}{0.49\linewidth}
+%
+%\begin{figure}
+%\includegraphics[width=\linewidth]{Images/CNNGNN.png}
+%\end{figure}
+%\end{minipage}
+%\begin{minipage}{0.49\linewidth}
+%
+%\begin{itemize}
+%\item $\mathbf{h}_i \in \mathbb{R}^p$ is hidden feature at $i$-th pixel.
+%\item Convolution involves adding up $\sum_i\mathbf{W}_i\mathbf{h}_i$.
+%\end{itemize}
+%\end{minipage}
+%The $(l+1)$-th hidden feature vector for the central pixel is
+%\[
+%\mathbf{h}_4^{(l+1)}=g^{(l)}\left(\mathbf{W}^{(l)}_0\mathbf{h}_0^{(l)}+\mathbf{W}^{(l)}_1\mathbf{h}_1^{(l)}+\dots+\mathbf{W}^{(l)}_8\mathbf{h}_8^{(l)}\right).
+%\]
+%\textcolor{red}{Not so helpful for graphs! What if we switch $\mathbf{h}_1$ and $\mathbf{h_2}$?}
+%\end{frame}
+%
+%
+%\begin{frame}{Convolutions on a graph\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+%
+%\begin{figure}
+%\includegraphics[width=0.55\linewidth]{Images/GCNN.png}
+%\end{figure}
+%The $(l+1)$-th hidden feature vector for the $i$-th node is
+%\[
+%\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_0^{(l)}}+{\color{red}\sum_{i\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right):
+%\]
+%$\mathcal{N}_i$ indexes the neighbours for node $i$ and $c_{ij}$ is some norming constant (fixed or trainable). Note that this update is \textbf{permutation-invariant}, as the weights are shared across locations.
+%\end{frame}
+%\begin{frame}{With or without skip-connections?}
+%
+%\end{frame}
+%\begin{frame}{Message passing vs. convolutional vs. attentional}
+%
+%\end{frame}
+%\begin{frame}{Some examples of propagation modules}
+%
+%\end{frame}
+%\begin{frame}{Graph level prediction}
+%
+%\end{frame}
+%\begin{frame}{Pooling}
+%
+%\end{frame}
 \begin{frame}
 \begin{center}
 \Huge Thanks for your attention!

@@ -1220,121 +1220,222 @@ where $g(\cdot)$ is a sigmoid function.
 \end{frame}
 
 \section{Graph neural networks}
-%\begin{frame}
-%\begin{center}
-%\Huge Graph neural networks
-%\end{center}
-%\end{frame}
-%\begin{frame}{Graphs}
-%\begin{itemize}
-%\item A graph $G$ can be defined as $G:=(V,E)$ where $V$ is a set of nodes/vertices (numbered 1 to $d$) and $E$ is a collection of edges between nodes.
-%\item We collect information about $G$ in an \textbf{adjacency matrix} $A\in\mathbb{R}^{d \times d}$, which need not be symmetric.
-%\item The $(i,j)$-th element of $A$ is positive and non-zero if there is a connection between the $i$-th and $j$-th node. This could be equal to one, or a scalar denoting the ``strength'' of connection. 
-%\item We observe a vector of features $\mathbf{x}_i \in \mathbb{R}^p$ at each node and we can store this in a feature matrix $\mathbf{X}=(\mathbf{x}_1, \dots,\mathbf{x}_p)'\in\mathbb{R}^{d\times p}$.
-%\item We might also have a vector of edge features as well, but for simplicity we will contain all edge information in $A$.
-%\end{itemize}
-%\end{frame}
-%
-%
-%\begin{frame}{Example}
-%
-%\end{frame}
-%
-%\begin{frame}{Applications}
-%Graphical data appears in a number of applications:
-%\begin{minipage}{0.49\linewidth}
-%\begin{itemize}
-%\item Networks: social, traffic,...
-%\item NLP;
-%\item Fraud detection;
-%\item Chemistry: molecular fingerprints;
-%\item Environmental: spatial data as fully-connected graph.
-%\end{itemize}
-%\includegraphics[width=0.8\linewidth]{Images/molecule.png}
-%\end{minipage}
-%\begin{minipage}{0.49\linewidth}
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{Images/Jeddah.jpg}
-%\end{figure}
-%\end{minipage}
-%\end{frame}
-%\begin{frame}{Applications}
-%Different types of graph learning:
-%\begin{itemize}
-%\item Node-level tasks;
-%\item Graph-level tasks;
-%\item Edge-level tasks.
-%\end{itemize} 
-%\end{frame}
-%\begin{frame}{What makes graph learning so hard?\footnote{Copyright belongs to \url{https://neptune.ai/blog/graph-neural-network-and-some-of-gnn-applications}}}
-%
-%\begin{itemize}
-%\item The layers we have are for specific modality, e.g., vector for dense, image for CNN, sequence for RNN.
-%\item The operations are defined for fixed dimension.
-%\item Consider a CNN; this is  for an image with pre-fixed dimension. Every pixel will always have the same number of neighbours!
-%\item Graphs are often more complex, with variable size and different amounts of neighbours.
-%\item Ordering in graphs does not matter. GNNs must be \textbf{permutationally-invariant}.
-%\end{itemize}
-%\begin{figure}
-%\includegraphics[width=0.5\linewidth]{Images/graph-neural-network.png}
-%\end{figure}
-%\end{frame}
-%\begin{frame}{General structure of a GNN\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
-%For node-level tasks -- input a graph and output a graph.
-%\begin{figure}
-%\includegraphics[width=0.8\linewidth]{Images/GNN_structure.png}
-%\end{figure}
-%At each hidden layer, update features at nodes via a form of \textbf{message passing} and agglomerate.
-%\end{frame}
-%
-%\begin{frame}{Convolutions on a grid\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
-%\begin{minipage}{0.49\linewidth}
-%
-%\begin{figure}
-%\includegraphics[width=\linewidth]{Images/CNNGNN.png}
-%\end{figure}
-%\end{minipage}
-%\begin{minipage}{0.49\linewidth}
-%
-%\begin{itemize}
-%\item $\mathbf{h}_i \in \mathbb{R}^p$ is hidden feature at $i$-th pixel.
-%\item Convolution involves adding up $\sum_i\mathbf{W}_i\mathbf{h}_i$.
-%\end{itemize}
-%\end{minipage}
-%The $(l+1)$-th hidden feature vector for the central pixel is
-%\[
-%\mathbf{h}_4^{(l+1)}=g^{(l)}\left(\mathbf{W}^{(l)}_0\mathbf{h}_0^{(l)}+\mathbf{W}^{(l)}_1\mathbf{h}_1^{(l)}+\dots+\mathbf{W}^{(l)}_8\mathbf{h}_8^{(l)}\right).
-%\]
-%\textcolor{red}{Not so helpful for graphs! What if we switch $\mathbf{h}_1$ and $\mathbf{h_2}$?}
-%\end{frame}
-%
-%
-%\begin{frame}{Convolutions on a graph\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
-%
-%\begin{figure}
-%\includegraphics[width=0.55\linewidth]{Images/GCNN.png}
-%\end{figure}
-%The $(l+1)$-th hidden feature vector for the $i$-th node is
-%\[
-%\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_0^{(l)}}+{\color{red}\sum_{i\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right):
-%\]
-%$\mathcal{N}_i$ indexes the neighbours for node $i$ and $c_{ij}$ is some norming constant (fixed or trainable). Note that this update is \textbf{permutation-invariant}, as the weights are shared across locations.
-%\end{frame}
-%\begin{frame}{With or without skip-connections?}
-%
-%\end{frame}
-%\begin{frame}{Message passing vs. convolutional vs. attentional}
-%
-%\end{frame}
-%\begin{frame}{Some examples of propagation modules}
-%
-%\end{frame}
-%\begin{frame}{Graph level prediction}
-%
-%\end{frame}
-%\begin{frame}{Pooling}
-%
-%\end{frame}
+\begin{frame}
+\begin{center}
+\Huge Graph neural networks
+\end{center}
+\end{frame}
+\begin{frame}{Graphs}
+\begin{itemize}
+\item A graph $G$ can be defined as $G:=(V,E)$ where $V$ is a set of nodes/vertices (numbered 1 to $d$) and $E$ is a collection of edges between nodes.
+\item We collect information about $G$ in an \textbf{adjacency matrix} $A\in\mathbb{R}^{d \times d}$, which need not be symmetric.
+\item The $(i,j)$-th element of $A$ is positive and non-zero if there is a connection between the $i$-th and $j$-th node. This could be equal to one, or a scalar denoting the ``strength'' of connection. 
+\item We observe a vector of features $\mathbf{x}_i \in \mathbb{R}^p$ at each node and we can store this in a feature matrix $\mathbf{X}=(\mathbf{x}_1, \dots,\mathbf{x}_p)'\in\mathbb{R}^{d\times p}$.
+\item We might also have a vector of edge features as well, but for simplicity we will contain all edge information in $A$.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}{Example}
+
+\end{frame}
+
+\begin{frame}{Applications}
+Graphical data appears in a number of applications:
+\begin{minipage}{0.49\linewidth}
+\begin{itemize}
+\item Networks: social, traffic,...
+\item NLP;
+\item Fraud detection;
+\item Chemistry: molecular fingerprints;
+\item Environmental: spatial data as fully-connected graph.
+\end{itemize}
+\includegraphics[width=0.8\linewidth]{Images/molecule.png}
+\end{minipage}
+\begin{minipage}{0.49\linewidth}
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{Images/Jeddah.jpg}
+\end{figure}
+\end{minipage}
+\end{frame}
+\begin{frame}{Applications}
+Different types of graph learning:
+\begin{itemize}
+\item Node-level tasks;
+\item Graph-level tasks;
+\item Edge-level tasks.
+\end{itemize} 
+\end{frame}
+\begin{frame}{What makes graph learning so hard?\footnote{Copyright belongs to \url{https://neptune.ai/blog/graph-neural-network-and-some-of-gnn-applications}}}
+
+\begin{itemize}
+\item The layers we have are for specific modality, e.g., vector for dense, image for CNN, sequence for RNN.
+\item The operations are defined for fixed dimension.
+\item Consider a CNN; this is  for an image with pre-fixed dimension. Every pixel will always have the same number of neighbours!
+\item Graphs are often more complex, with variable size and different amounts of neighbours.
+\item Ordering in graphs does not matter. GNNs must be \textbf{permutationally-invariant}.
+\end{itemize}
+\begin{figure}
+\includegraphics[width=0.5\linewidth]{Images/graph-neural-network.png}
+\end{figure}
+\end{frame}
+\begin{frame}{General structure of a GNN\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+For node-level tasks -- input a graph and output a graph.
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{Images/GNN_structure.png}
+\end{figure}
+At each hidden layer, update features at nodes via a form of \textbf{message passing} and agglomerate.
+\end{frame}
+
+\begin{frame}{Convolutions on a grid\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+\begin{minipage}{0.49\linewidth}
+
+\begin{figure}
+\includegraphics[width=\linewidth]{Images/CNNGNN.png}
+\end{figure}
+\end{minipage}
+\begin{minipage}{0.49\linewidth}
+
+\begin{itemize}
+\item $\mathbf{h}_i \in \mathbb{R}^p$ is hidden feature at $i$-th pixel.
+\item Convolution involves adding up $\sum_i\mathbf{W}_i\mathbf{h}_i$.
+\end{itemize}
+\end{minipage}
+The $(l+1)$-th hidden feature vector for the central pixel is
+\[
+\mathbf{h}_4^{(l+1)}=g^{(l)}\left(\mathbf{W}^{(l)}_0\mathbf{h}_0^{(l)}+\mathbf{W}^{(l)}_1\mathbf{h}_1^{(l)}+\dots+\mathbf{W}^{(l)}_8\mathbf{h}_8^{(l)}\right).
+\]
+\textcolor{red}{Not so helpful for graphs! What if we switch $\mathbf{h}_1$ and $\mathbf{h_2}$?}
+\end{frame}
+
+
+\begin{frame}{Convolutions on a graph\footnote{From slides belonging to Thomas Kipf, University of Amsterdam}}
+
+\begin{figure}
+\includegraphics[width=0.525\linewidth]{Images/GCNN.png}
+\end{figure}
+The $(l+1)$-th hidden feature vector for the $i$-th node is
+\[
+\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_0^{(l)}}+{\color{red}\sum_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right):
+\]
+$\mathcal{N}_i$ indexes the neighbours for node $i$ and $c_{ij}$ is some norming constant (fixed or trainable). Note that this update is \textbf{permutation-invariant}, as the weights are shared across locations.
+\end{frame}
+
+
+\begin{frame}{With or without skip-connections?}
+We can go a step further and enforce that $\mathbf{W}_1^{(l)}=\mathbf{W}_0^{(l)}$.  Then:
+\[
+\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_1^{(l)}}+{\color{red}\sum_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right).
+\]
+Letting $\mathbf{W}_1^{(l)}\neq \mathbf{W}_0^{(l)}$ induces a \textbf{skip-connection}.
+\end{frame}
+
+\begin{frame}{GCN: Matrix notation}
+Start with:
+\[
+\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_1^{(l)}}+{\color{red}\sum_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right).
+\]
+Collect in $\mathbf{H}^{(l)}=(\mathbf{h}_1^{(l)},\dots,\mathbf{h}_d^{(l)})'\in \mathbb{R}^{d \times p_l}$ the hidden feature matrix, where $p_{l}$ is the number of features in the $l$-th layer, with $\mathbf{H}^{(0)}=\mathbf{X}$.\\ Collect in $\mathbf{W}^{(l)}=(\mathbf{W}_1^{(l)},\dots,\mathbf{W}_{1}^{(l)})'\in \mathbb{R}^{p_l\times p_{l-1}}$ the weights.\\
+Then $\mathbf{H}^{(l)}=\mathbf{g}^{(l)}(\tilde{A}\mathbf{H}^{(l-1)}\mathbf{W}^{(l)})$, for $\tilde{A}=A+I$.\\
+
+What happens to $c_{ij}$?
+\end{frame}
+\begin{frame}{GCN: Matrix notation}
+The matrix $\tilde{A}$ needs to be normalised! Or the hidden output at nodes with many neighbours will be much larger.\\
+
+Solution: normalise $\tilde{A}$ by the degree matrix $\tilde{D}$. Then we have
+\[
+\mathbf{H}^{(l)}=\mathbf{g}^{(l)}(\tilde{D}^{-1/2}\tilde{A}\tilde{D}^{-1/2}\mathbf{H}^{(l-1)}\mathbf{W}^{(l)}).
+\]
+This is equivalent to having
+\[
+\mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\frac{1}{|\mathcal{N}_i|}\mathbf{h}_i^{(l)}\mathbf{W}_1^{(l)}}+{\color{red}\frac{1}{|\mathcal{N}_i|}\sum_{j\in\mathcal{N}_i}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right).
+\]
+\end{frame}
+\begin{frame}{Message passing vs. convolutional vs. attentional}
+We have described the simplest graph convolutional neural network layer\footnote{Kipf and Welling. Semi-supervised classification with graph
+convolutional networks. arXiv:1609.02907, 2016.}. This is all we will use in the practicals!
+
+The general structure of the \textbf{propagation} of information in a GNN layer can always be written as 
+\[
+\mathbf{h}_i^{(l)}=\phi^{(l)}\{{\color{blue}\mathbf{h}_i^{(l-1)}},{\color{red}\{\mathbf{h}_j^{(l-1)}\}_{j\in\mathcal{N}_i}}\},
+\]
+where \textit{propagation module} $\phi^{(l)}$ is learnable and permutation-invariant. Often of the form
+\[
+\phi^{(l)}(\mathbf{x},\mathbf{y})=g^{(l)}(\mathbf{W}_0^{(l)}\mathbf{x}+\mathbf{W}_1^{(l)}\mathbf{y}),
+\]
+for weights $\mathbf{W}_0^{(l)},\mathbf{W}_1^{(l)}$.
+\end{frame}
+
+\begin{frame}{Convolutional $\subseteq$ attentional $\subseteq$ message-passing}
+Convolutional:
+\[
+\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\psi\{{\color{red}\mathbf{h}_j^{(l)}}\}\right).
+\]
+Attentional:
+\[
+\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\frac{1}{a({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})}\psi\{{\color{red}\mathbf{h}_j^{(l)}}\}\right),
+\]
+with self-attention mechanism $a({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})$.\\
+Message-passing:
+\[
+\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\psi\{({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})\}\right),
+\]
+where $\psi(\mathbf{x})$ is linear and $\bigoplus$ is a permutation-invariant aggregation function, e..g, sum, mean, max.
+
+\end{frame}
+\begin{frame}{Some examples of propagation modules\footnote{Zhou, Cui, Hu, Zhang, Yang, Liu, Wang, Li, Sun. (2020).
+Graph neural networks: A review of methods and applications.}}
+\begin{figure}
+\includegraphics[width=0.85\linewidth]{Images/GNN-variants.jpg}
+\end{figure}
+Let's have a look here \url{https://graphneural.network/layers/convolution/}.
+\end{frame}
+\begin{frame}{Sampling\footnote{Zhou, Cui, Hu, Zhang, Yang, Liu, Wang, Li, Sun. (2020).
+Graph neural networks: A review of methods and applications.}}
+For very large graphs, we might not want to use all nodes in the neighbourhood $\mathcal{N}_i$. We can instead sample nodes.
+\begin{figure}
+\includegraphics[width=0.85\linewidth]{Images/GNN_sampling.jpg}
+\end{figure}
+\end{frame}
+\begin{frame}{Graph level prediction}
+So we can apply propagation modules throughout a number of hidden layers. But at the end we get a graph. What happens if we want to output a scaler or vector?
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{Images/GNN_structure.png}
+\end{figure}
+For CNNs, we did a form of dimensionality-reduction using \textbf{pooling} layers.
+\end{frame}
+\begin{frame}{Pooling}
+Pooling for graphs can be done either locally or globally:
+\begin{itemize}
+\item \textbf{Local} pooling: outputs a coarser graph with less vertices;
+\item \textbf{Global} pooling: outputs a vector, rather than a graph.
+\end{itemize}
+Again, lots to choose from \url{https://graphneural.network/layers/pooling/}
+\end{frame}
+\begin{frame}{TopKPool\footnote{Cangea, Cătălina, Petar Veličković, Nikola Jovanović, Thomas Kipf, and Pietro Liò. "Towards sparse hierarchical graph classifiers." arXiv preprint arXiv:1811.01287 (2018).}}
+For a ratio $k\in(0,1)$; keep $\lfloor{kd}\rfloor$ nodes. For input graph $(\mathbf{H},A)$ for $\mathbf{H}\in\mathbb{R}^{d\times p}$, $A\in\mathbb{R}^{d\times d}$, and learnable projection vector $\mathbf{p}\in\mathbb{R}^p$. 
+\begin{itemize}
+\item Get scores $\mathbf{y}=\mathbf{H}\times\mathbf{p}/\|\mathbf{p}\|$.
+\item  Keep indices of $\mathbf{H}$ and $A$ that provide the top $\lfloor{kd}\rfloor$ scores; denote former by $\tilde{\mathbf{H}}$.
+\item  Re-weight $\tilde{\mathbf{H}}$ by sigmoid of indexed $\mathbf{y}$ to ensure differentiability.
+\end{itemize}
+
+\end{frame}
+\begin{frame}{TopKPool\footnote{Gao and Ji. (2019).
+Graph U-Nets.}}
+\begin{figure}
+\includegraphics[width=0.95\linewidth]{Images/TopKpool.png}
+\end{figure}
+\end{frame}
+\begin{frame}{SortPool}
+\end{frame}
+\begin{frame}{Pipeline\footnote{Zhou, Cui, Hu, Zhang, Yang, Liu, Wang, Li, Sun. (2020).
+Graph neural networks: A review of methods and applications.}}
+\begin{figure}
+\includegraphics[width=0.95\linewidth]{Images/GNN_pipeline.jpg}
+\end{figure}
+\end{frame}
 \begin{frame}
 \begin{center}
 \Huge Thanks for your attention!

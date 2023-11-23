@@ -195,7 +195,7 @@ We can now build a Keras model as we have done previously, just by swapping laye
 However, we need an extra input to the graph layer that includes information about the graph itself. This extra input depends on the type of layer. For GCGSconv, we need the normalised adjacency matrix.
 
 ```{r, eval=T}
-ML<-spk$utils$convolution$normalized_adjacency(A)
+A.normed<-spk$utils$convolution$normalized_adjacency(A)
 ```
 
 # Keras GNN
@@ -205,10 +205,10 @@ library(keras)
 
 input.lay <- layer_input(shape = dim(X)[2:3])
 
-hidden.lay1<- list(input.lay, ML) %>% 
+hidden.lay1<- list(input.lay, A.normed) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
 
-hidden.lay2<- list(hidden.lay1, ML) %>% 
+hidden.lay2<- list(hidden.lay1, A.normed) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
 
 
@@ -288,7 +288,7 @@ mean(qhat[,,1] > Y)
 A2 <- exp(-(dist/50)^2)
 diag(A2) <- 0
 A2[dist > cut.off.dist] <- 0
-ML2<-spk$utils$convolution$normalized_adjacency(A2)
+A2.normed<-spk$utils$convolution$normalized_adjacency(A2)
 
 ```
 
@@ -297,9 +297,9 @@ ML2<-spk$utils$convolution$normalized_adjacency(A2)
 ```{r, eval=T}
 library(keras)
 input.lay2 <- layer_input(shape = dim(X)[2:3])
-hidden.lay21<- list(input.lay2, ML2) %>% 
+hidden.lay21<- list(input.lay2, A2.normed) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
-hidden.lay22<- list(hidden.lay21, ML2) %>% 
+hidden.lay22<- list(hidden.lay21, A2.normed) %>% 
   layer_graph_conv(channels = 32,   activation = "relu") 
 output.lay2 <- hidden.lay22 %>% 
   layer_dense(units=1, activation = 'exponential')
@@ -423,3 +423,140 @@ plot(maps::map("world",plot=F),type="l",ylab="",ylim=c(44,60),xlim=range(-11,5),
 for(i in 1:nrow(coords)) points(coords[i,1],coords[i,2],col=rev(heat.colors(nrow(coords)))[rank(qhat2[time.ind,,])[i]],pch=20)
 ```
 
+# Graph-level prediction
+
+Let's switch the problem up a bit. Say I was interest in predicted the probability of having extreme rainfall at this location.
+
+```{r, eval=TRUE, echo =F}
+site.ind <-80
+par(mfrow=c(1,2))
+plot(Y[,site.ind], 
+     xlab = "Time",
+     ylab = "Hourly rainfall (mm)", 
+     pch = 20, 
+     col = adjustcolor("black", 0.2))
+plot(maps::map("world",plot=F),type="l",xlab="",ylab="",ylim=c(42,63),xlim=range(-11,6),pch=20,asp=1/1.6)
+points(coords[site.ind,1],coords[site.ind,2],col="red",pch=3)
+```
+
+# Graph-level prediction
+
+I could formulate this problem by transforming $Y$ to a vector of 1s and 0s. This now becomes a graph-level classification problem. We have one value for the entire graph!
+
+```{r, eval=TRUE}
+site.ind <-80
+Y <- 1*as.matrix(Y[,site.ind]>quantile(Y[,site.ind],prob=0.9))
+dim(Y)
+dim(X)
+
+Y.valid <-  as.matrix(Y[validation.inds,])
+Y.train <-  as.matrix(Y[-validation.inds,])
+```
+
+# Custom pooling layers
+
+We will use a global SortPool layer
+
+```{r, eval=TRUE, echo=T}
+layer_Sort_pool <- function(
+     object,
+     k,
+     name=NULL,
+     ...)
+{
+  args <- list(k = as.integer(k),
+     name=name
+  )
+  keras::create_layer(spk$layers$SortPool, object, args)
+
+}
+```
+
+# Build model
+
+```{r, eval=T}
+input.lay <- layer_input(shape = dim(X)[2:3])
+hidden.lay1<- list(input.lay, A2.normed) %>% 
+  layer_graph_conv(channels = 32,   activation = "relu") 
+hidden.lay2<- list(hidden.lay1, A2.normed) %>% 
+  layer_graph_conv(channels = 16,   activation = "relu")
+```
+
+# Pool
+
+```{r, eval=T}
+pooled.lay <- hidden.lay2 %>% layer_Sort_pool(k=25)
+pooled.lay
+```
+
+# Flatten and dense
+
+```{r, eval=T}
+
+flatten.layer <- pooled.lay %>%
+  layer_flatten()
+hidden.lay3 <- flatten.layer %>% 
+  layer_dense(units=16, activation = 'relu')
+output.lay <- hidden.lay3 %>% 
+  layer_dense(units=1, activation = 'sigmoid')
+
+
+ model <- keras_model(
+    inputs = c(input.lay), 
+    outputs = c(output.lay)
+  )
+```
+
+
+# New model fitting
+
+```{r, eval=T}
+model %>% compile(
+  loss = "binary_crossentropy",
+  optimizer = "adam",
+  metrics = c('accuracy')
+)
+```
+
+# New model fitting
+
+```{r,eval=T}
+history <- model %>% fit(
+   x = X.train, y = Y.train, shuffle=T,
+  epochs = 200, batch_size = 32, 
+  validation_data = list(
+    X.valid, Y.valid),
+  callbacks =  list(
+    callback_model_checkpoint(filepath = "model_weights",
+      verbose=0, monitor="val_loss",
+      save_best_only = TRUE, save_weights_only = TRUE),
+      callback_early_stopping(monitor = "val_loss", 
+                          min_delta = 0, patience = 5))
+)
+model <- load_model_weights_tf(model,
+                               filepath="model_weights")
+```
+
+# Fitting the model
+* Check for overfitting
+
+```{r, eval=TRUE, fig.height = 3, fig.width = 7}
+
+plot(history)
+
+```
+
+# Predictions
+
+```{r, eval=TRUE}
+phat <- model %>% predict(X_scaled)
+
+```
+* and check the accuracy of the predictions
+```{r, eval = T}
+predictions <- as.numeric(phat %>%
+`>`(0.5) %>% k_cast("int32"))
+truth <- Y
+propCorrect <- sum(predictions == truth)/length(truth)
+print(propCorrect)
+```

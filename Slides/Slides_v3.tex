@@ -1230,7 +1230,7 @@ where $g(\cdot)$ is a sigmoid function.
 \item A graph $G$ can be defined as $G:=(V,E)$ where $V$ is a set of nodes/vertices (numbered 1 to $d$) and $E$ is a collection of edges between nodes.
 \item We collect information about $G$ in an \textbf{adjacency matrix} $A\in\mathbb{R}^{d \times d}$, which need not be symmetric.
 \item The $(i,j)$-th element of $A$ is positive and non-zero if there is a connection between the $i$-th and $j$-th node. This could be equal to one, or a scalar denoting the ``strength'' of connection. 
-\item We observe a vector of features $\mathbf{x}_i \in \mathbb{R}^p$ at each node and we can store this in a feature matrix $\mathbf{X}=(\mathbf{x}_1, \dots,\mathbf{x}_p)'\in\mathbb{R}^{d\times p}$.
+\item We observe a vector of features $\mathbf{x}_i \in \mathbb{R}^p$ at each node and we can store this in a feature matrix $\mathbf{X}=(\mathbf{x}_1, \dots,\mathbf{x}_d)'\in\mathbb{R}^{d\times p}$.
 \item We might also have a vector of edge features as well, but for simplicity we will contain all edge information in $A$.
 \end{itemize}
 \end{frame}
@@ -1335,7 +1335,7 @@ Start with:
 \[
 \mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}\mathbf{W}_1^{(l)}}+{\color{red}\sum_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right).
 \]
-Collect in $\mathbf{H}^{(l)}=(\mathbf{h}_1^{(l)},\dots,\mathbf{h}_d^{(l)})'\in \mathbb{R}^{d \times p_l}$ the hidden feature matrix, where $p_{l}$ is the number of features in the $l$-th layer, with $\mathbf{H}^{(0)}=\mathbf{X}$.\\ Collect in $\mathbf{W}^{(l)}=(\mathbf{W}_1^{(l)},\dots,\mathbf{W}_{1}^{(l)})'\in \mathbb{R}^{p_l\times p_{l-1}}$ the weights.\\
+Collect in $\mathbf{H}^{(l)}=(\mathbf{h}_1^{(l)},\dots,\mathbf{h}_d^{(l)})'\in \mathbb{R}^{d \times p_l}$ the hidden feature matrix, where $p_{l}$ is the number of features in the $l$-th layer, with $\mathbf{H}^{(0)}=\mathbf{X}$.\\\vfill Collect in $\mathbf{W}^{(l)}=(\mathbf{W}_1^{(l)},\dots,\mathbf{W}_{1}^{(l)})'\in \mathbb{R}^{p_l\times p_{l-1}}$ the weights.\\\vfill
 Then $\mathbf{H}^{(l)}=\mathbf{g}^{(l)}(\tilde{A}\mathbf{H}^{(l-1)}\mathbf{W}^{(l)})$, for $\tilde{A}=A+I$.\\
 
 What happens to $c_{ij}$?
@@ -1352,7 +1352,7 @@ This is equivalent to having
 \mathbf{h}_i^{(l+1)}=g^{(l)}\left({\color{blue}\frac{1}{|\mathcal{N}_i|}\mathbf{h}_i^{(l)}\mathbf{W}_1^{(l)}}+{\color{red}\frac{1}{|\mathcal{N}_i|}\sum_{j\in\mathcal{N}_i}\mathbf{h}_j^{(l)}\mathbf{W}_1^{(l)}}\right).
 \]
 \end{frame}
-\begin{frame}{Message passing vs. convolutional vs. attentional}
+\begin{frame}{Propagation}
 We have described the simplest graph convolutional neural network layer\footnote{Kipf and Welling. Semi-supervised classification with graph
 convolutional networks. arXiv:1609.02907, 2016.}. This is all we will use in the practicals!
 
@@ -1360,28 +1360,41 @@ The general structure of the \textbf{propagation} of information in a GNN layer 
 \[
 \mathbf{h}_i^{(l)}=\phi^{(l)}\{{\color{blue}\mathbf{h}_i^{(l-1)}},{\color{red}\{\mathbf{h}_j^{(l-1)}\}_{j\in\mathcal{N}_i}}\},
 \]
-where \textit{propagation module} $\phi^{(l)}$ is learnable and permutation-invariant. Often of the form
+where \textit{propagation module} $\phi^{(l)}$ is learnable and permutation-invariant. 
+\end{frame}
+\begin{frame}{Propagation}
+We update the features at node $i$ using $\phi^{(l)}$, by aggregating over features in $\mathcal{N}_i$. If we remove ${\color{blue}\mathbf{h}_i^{(l-1)}}$ from $\phi^{(l)}$, we remove the skip-connection.\\\vfill
+
+Often an affine transformation, e.g., of the form
 \[
 \phi^{(l)}(\mathbf{x},\mathbf{y})=g^{(l)}(\mathbf{W}_0^{(l)}\mathbf{x}+\mathbf{W}_1^{(l)}\mathbf{y}),
 \]
-for weights $\mathbf{W}_0^{(l)},\mathbf{W}_1^{(l)}$.
+for weights $\mathbf{W}_0^{(l)},\mathbf{W}_1^{(l)}$ and activation function $g^{(l)}$.
 \end{frame}
 
 \begin{frame}{Convolutional $\subseteq$ attentional $\subseteq$ message-passing}
 Convolutional:
 \[
-\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\psi\{{\color{red}\mathbf{h}_j^{(l)}}\}\right).
+\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\frac{1}{c_{ij}}\psi\{{\color{red}\mathbf{h}_j^{(l)}}\}\right),
 \]
+where $\psi(\mathbf{x})$ is linear and $\bigoplus$ is a permutation-invariant aggregation function, e..g, sum, mean, max.\\
+The constant $1/c_{ij}$ specifies the \textbf{importance}  of node $j$ to node $i$. Note that it does not change with the features!
+
+\end{frame}
+\begin{frame}{Convolutional $\subseteq$ attentional $\subseteq$ message-passing}
+
 Attentional:
 \[
 \mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\frac{1}{a({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})}\psi\{{\color{red}\mathbf{h}_j^{(l)}}\}\right),
 \]
-with self-attention mechanism $a({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})$.\\
+with self-attention mechanism $a({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})$.\\ The importance is now a function of the features. It is often normalised to sum to one.
+\end{frame}
+\begin{frame}{Convolutional $\subseteq$ attentional $\subseteq$ message-passing}
 Message-passing:
 \[
-\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\psi\{({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})\}\right),
+\mathbf{h}_i^{(l+1)}=\phi^{(l)}\left({\color{blue}\mathbf{h}_i^{(l)}},\bigoplus_{j\in\mathcal{N}_i}\psi\{({\color{blue}\mathbf{h}_i^{(l)}},{\color{red}\mathbf{h}_j^{(l)}})\}\right).
 \]
-where $\psi(\mathbf{x})$ is linear and $\bigoplus$ is a permutation-invariant aggregation function, e..g, sum, mean, max.
+Here $\psi(\mathbf{x})$ is a learnable function. The importance is not specific to the node pair $(i,j)$, and we instead pass arbitrary \textit{messages} between nodes.
 
 \end{frame}
 \begin{frame}{Some examples of propagation modules\footnote{Zhou, Cui, Hu, Zhang, Yang, Liu, Wang, Li, Sun. (2020).
@@ -1429,7 +1442,14 @@ Graph U-Nets.}}
 \end{figure}
 \end{frame}
 
-\begin{frame}{SortPool}
+\begin{frame}{SortPool\footnote{Zhang, Muhan, Zhicheng Cui, Marion Neumann, and Yixin Chen. "An end-to-end deep learning architecture for graph classification." }}
+Re-order $\mathbf{H}$ by it's last column, i.e., the $p$-th hidden feature. 
+
+Return top $K$ rows.
+\begin{figure}
+\includegraphics[width=0.95\linewidth]{Images/DCGNN.png}
+\end{figure}
+DGCNN.
 \end{frame}
 \begin{frame}{Pipeline\footnote{Zhou, Cui, Hu, Zhang, Yang, Liu, Wang, Li, Sun. (2020).
 Graph neural networks: A review of methods and applications.}}

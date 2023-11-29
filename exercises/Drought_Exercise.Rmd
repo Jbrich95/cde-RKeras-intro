@@ -266,7 +266,7 @@ input.lay <- layer_input(shape = dim(X.rnn.train)[-1],
 model <- input.lay %>%
   layer_lstm(units = 128,
       input_shape = c(timestepsPerSample, numDims),
-      return_sequences = FALSE) %>%
+      return_sequences = FALSE ) %>%
   layer_dense(units = 128, activation = "relu") 
   output.lay <- model %>% layer_dense(units = 2)
 ```
@@ -298,7 +298,7 @@ Let's train the model with early stopping and a checkpoint
 
 ```{r, eval = T}
 history <- model %>% fit(
-  x = X.rnn.train, y = Y.rnn.train, verbose=0,
+  x = X.rnn.train, y = Y.rnn.train, 
   batch_size = batchSize, epochs = 200, shuffle = FALSE, 
   validation_data = list(X.rnn.valid, Y.rnn.valid),
   callbacks = list(
@@ -339,7 +339,7 @@ Plot the true time series with 3-month-out forecast and 50% and 95%
 prediction intervals.
 
 ```{r, eval = F}
-plot(rainfallAnomaly[Y.validation.inds, 3], ty = "l", 
+plot(rainfallAnomaly[Y.valid.inds, 3], ty = "l", 
      xlab = "Time (months)", 
      ylab = "MDB Rainfall Anomaly (mm)")
 lines(mu, col = "blue")
